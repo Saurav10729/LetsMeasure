@@ -15,7 +15,7 @@ app = Flask(__name__)
 def index():
     return "Index of APi"
 
-@app.route('/object_measurement_rectangle',methods= ['POST'])
+@app.route('/object_measurement_rectangle/',methods= ['POST'])
 def object_detection_rectangle():
 
     file = request.files['image']
@@ -30,12 +30,12 @@ def object_detection_rectangle():
     image2str=pickle.dumps(opencv_image)
     return jsonify({'msg': 'success', 'size': [w,h],'image':base64.b64encode(image2str).decode('ascii')})
 
-@app.route('/object_measurement_circle',methods=['POST'])
+@app.route('/object_measurement_circle/',methods=['POST'])
 def object_measurement_circle():
     return "This function returns RGB value for a x,y coordinate in the image provided"
 
 
-@app.route('/colordetection', methods =['POST'])
+@app.route('/colordetection/', methods =['POST'])
 def color_detection():
     # # return "This function returns RGB value for a x,y coordinate in the image provided"
     # file = request.files['image']
@@ -54,7 +54,7 @@ def color_detection():
     # return jsonify({'msg': 'success', 'size': [w, h], 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
     return "Color Detection feature"
 
-@app.route('/angledetector', methods =['POST'])
+@app.route('/angledetector/', methods =['POST'])
 def angle_detection():
 
     return "This function returns angle value in degree between 2 edges"
