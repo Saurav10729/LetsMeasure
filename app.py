@@ -37,22 +37,22 @@ def object_measurement_circle():
 
 @app.route('/colordetection', methods =['POST'])
 def color_detection():
-    # return "This function returns RGB value for a x,y coordinate in the image provided"
-    file = request.files['image']
-    request_data = request.get_json(silent=True)
-    print(type(request_data))
-    x = request_data['x-coord']
-    y = request_data['y-coord']
-
-    image = Image.open(file.stream)
-    opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
-
-    B,G,R = opencv_image [x,y]
-    color_name = get_color_name(R,G,B)
+    # # return "This function returns RGB value for a x,y coordinate in the image provided"
+    # file = request.files['image']
+    # request_data = request.get_json(silent=True)
+    # print(type(request_data))
+    # x = request_data['x-coord']
+    # y = request_data['y-coord']
     #
-    # return jsonify({'msg': 'success'})
-    return jsonify({'msg': 'success', 'size': [w, h], 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
-
+    # image = Image.open(file.stream)
+    # opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+    #
+    # B,G,R = opencv_image [x,y]
+    # color_name = get_color_name(R,G,B)
+    # #
+    # # return jsonify({'msg': 'success'})
+    # return jsonify({'msg': 'success', 'size': [w, h], 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
+    return "Color Detection feature"
 
 @app.route('/angledetector', methods =['POST'])
 def angle_detection():
