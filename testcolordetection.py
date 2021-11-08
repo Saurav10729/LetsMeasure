@@ -4,23 +4,18 @@ import pickle
 import base64
 import json
 
-
-url = " http://127.0.0.1:5000/colordetection"
-
-
+url="http://0460-110-44-116-42.ngrok.io/colordetection"
 my_img = {'image': open('Testimages\laptopwitharuco.jpg', 'rb')}
+x,y =100,150
 
-x,y =100,150    #the coordinates whose RGB, color value is needed
+header = {'Content-type':'application/json'}
+datas = {"data":{"msge":"sent","x-coord":x,"y-coord":y}}
 
-data = {'msge':'sent','x-coord':x,'y-coord':y}
-# jsondata =json.dumps((data))
-r = requests.post(url, files=my_img, json={'msge':'sent','x-coord':x,'y-coord':y})
+r = requests.post(url, files=my_img, json =json.dumps(datas), headers=header)
 if r.ok:
     print(r.json())
 js = r.json()
-
 messagereturned =js['msg']
-
 R = js['R-value']
 G = js['G-value']
 B = js['B-value']

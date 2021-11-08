@@ -41,43 +41,36 @@ def object_measurement_circle():
     w = image.width
     h = image.height
 
-    opencv_image,opencv_detectedcircle = generate_image_circle(opencv_image)
-    cv2.imshow(opencv_image)
-    cv2.imshow(opencv_detectedcircle)
+    opencv_image,circle_detected = generate_image_circle(opencv_image)
+    print(circle_detected)
 
     opencv_image2str = pickle.dumps(opencv_image)
-    elipse_image2str=pickle.dumps(opencv_detectedcircle)
     print("function was accessed")
 
     image1_encode = base64.b64encode(opencv_image2str).decode('ascii')
-    image2_encode = base64.b64encode(elipse_image2str).decode('ascii')
 
     print(type(image1_encode))
-    print(type(image2_encode))
-    return jsonify({'message': 'success', 'size': [w,h],'image1':base64.b64encode(opencv_image2str).decode('ascii'),'image2':base64.b64encode(elipse_image2str).decode('ascii')})
+    return jsonify({'message': 'success', 'size': [w,h],'image':base64.b64encode(opencv_image2str).decode('ascii'),'no_of_circles':circle_detected})
 
 
-    # return "This function returns RGB value for a x,y coordinate in the image provided"
-
-
-@app.route('/colordetection', methods =['POST'])
+@app.route('/co lordetection', methods =['POST'])
 def color_detection():
-    # # return "This function returns RGB value for a x,y coordinate in the image provided"
-    # file = request.files['image']
-    # request_data = request.get_json(silent=True)
-    # print(type(request_data))
-    # x = request_data['x-coord']
-    # y = request_data['y-coord']
-    #
-    # image = Image.open(file.stream)
-    # opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
-    #
-    # B,G,R = opencv_image [x,y]
-    # color_name = get_color_name(R,G,B)
-    # #
-    # # return jsonify({'msg': 'success'})
-    # return jsonify({'msg': 'success', 'size': [w, h], 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
-    return "Color Detection feature"
+    file = request.files.get('image')
+    request_data = request.json
+    print(request_data)
+    print(type(request_data))
+    x = request_data['x-coord']
+    print(x)
+    y = request_data['y-coord']
+    print(y)
+    image = Image.open(file.stream)
+    opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+
+    B,G,R = opencv_image [x,y]
+    color_name = get_color_name(R,G,B)
+
+    return jsonify({'msg': 'success', 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
+    # return "Color Detection feature"
 
 @app.route('/angledetector', methods =['POST'])
 def angle_detection():

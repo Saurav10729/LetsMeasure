@@ -1,6 +1,8 @@
-import cv2
-import cv2
+
 import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+from PIL import Image
 
 from object_detector import HomogeneousBgDetector
 
@@ -37,40 +39,57 @@ def generate_image_rectangle(opencv_image):
 
             cv2.polylines(opencv_image, [box], True, (255, 0, 0), 2)
 
-            cv2.putText(opencv_image, "Width {} cm".format(round(object_width, 1)), (int(x - 100), int(y - 20)),
-                        cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
+            cv2.putText(opencv_image, "Width {} cm".format(round(object_width, 1)), (int(x - 100), int(y - 20)),cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
 
-            cv2.putText(opencv_image, "Height {} cm".format(round(object_height, 1)), (int(x - 100), int(y + 15)),
-                        cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
+            cv2.putText(opencv_image, "Height {} cm".format(round(object_height, 1)), (int(x - 100), int(y + 15)),cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
 
     return opencv_image
 
 def generate_image_circle(opencv_image):
-    opencv_copy = opencv_image.copy()
-    gray_image = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
-    blurred_image = cv2.GaussianBlur(gray_image,(5,5),0)
-    lower =84
-    upper =255
-    edges = cv2.Canny(blurred_image,lower,upper)
+    image_copy = opencv_image.copy()
+    corners, _, _ = cv2.aruco.detectMarkers(opencv_image, aruco_dict, parameters=parameters)
+    if corners:
+        int_corners = np.int0(corners)
+        cv2.polylines(opencv_image, int_corners, True, (0, 255, 0), 5)
 
-    contours, _ = cv2.findContours(edges, cv2.RETR_TREE, 1)
-    rep = cv2.drawContours(opencv_image, contours, -1, (0, 255, 0), 3)
+        aruco_perimeter = cv2.arcLength(corners[0], True)
+        pixel_cm_ratio = aruco_perimeter / 20
 
-    # cnt = contours
-    # for i in range(0, len(cnt)):
-    #     ellipse = cv2.fitEllipse(cnt[i])
-    #
-    #     (center, axes, orientation) = ellipse
-    #     majoraxis_length = max(axes)
-    #     minoraxis_length = min(axes)
-    #
-    #     eccentricity = (np.sqrt(1 - (minoraxis_length / majoraxis_length) ** 2))
-    #     print("Eccentricity:: ",eccentricity)
-    #
-    #     cv2.ellipse(opencv_copy, ellipse, (0, 0, 255), 2)
-    #
-    # cv2.imshow('Detected ellipse', opencv_copy)
-    return(opencv_image)
-    # return(opencv_image, opencv_copy)
+        grayimage = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
+        blurimage = cv2.GaussianBlur(grayimage, (21, 21), cv2.BORDER_DEFAULT)
 
+        all_circles = cv2.HoughCircles(blurimage, cv2.HOUGH_GRADIENT, 0.9, 120)
+
+        if all_circles is not None:
+            all_circles_rounded = np.uint16(np.around(all_circles))
+
+            print(all_circles_rounded)
+            print(all_circles_rounded.shape)
+            print('Circles found:' + str(all_circles_rounded.shape[1]))
+
+            count = 1
+            for i in all_circles_rounded[0, :]:
+                radius = i[2]/pixel_cm_ratio
+                circumference = 2*(22/7)*radius
+                area = (22/7)*radius*radius
+                cv2.circle(image_copy, (i[0], i[1]), i[2], (50, 200, 200), 5)
+                cv2.circle(image_copy, (i[0], i[1]), 2, (255, 0, 0), 5)
+
+                #display on the image
+                # Circle
+                # Radius: __ cm
+                # Circumference: ___ cm
+                # Area: __ sqr.cm
+
+                cv2.putText(image_copy, "Circle" + str(count), (i[0] - 70, i[1] + 30), cv2.FONT_HERSHEY_SIMPLEX, .5,(241,231,64), 2)
+                cv2.putText(image_copy, "Radius: " + str(round(radius,2))+' cm', (i[0] - 70, i[1] + 50), cv2.FONT_HERSHEY_SIMPLEX, .5,(241,231,64), 2)
+                cv2.putText(image_copy, "Circumference: " + str(round(circumference,2))+' cm', (i[0] - 70, i[1] + 70), cv2.FONT_HERSHEY_SIMPLEX, .5,(241,231,64), 2)
+                cv2.putText(image_copy, "Area: " + str(round(area,2))+' sqr.cm', (i[0] - 70, i[1] + 90), cv2.FONT_HERSHEY_SIMPLEX, .5,(241,231,64), 2)
+
+                count += 1
+            return (image_copy, len(all_circles_rounded))
+
+        else:
+            return(image_copy,0)
+    return(image_copy,-1)
 
