@@ -4,7 +4,7 @@ import pickle
 import base64
 import json
 
-url = " http://eb2a-103-10-29-109.ngrok.io/object_measurement_rectangle"
+url = " http://6c4e-110-44-127-181.ngrok.io/object_measurement_rectangle"
 
 
 my_img = {'image': open('Testimages\laptopwitharuco.jpg', 'rb')}
@@ -16,6 +16,7 @@ imagereturn= js['image']
 imdata = base64.b64decode(imagereturn)
 print(type(imdata))
 image = pickle.loads(imdata)
-
+print(imdata)
 pilimage =Image.fromarray(image[...,::-1])
+
 pilimage.show()
