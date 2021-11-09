@@ -53,7 +53,7 @@ def object_measurement_circle():
     return jsonify({'message': 'success', 'size': [w,h],'image':base64.b64encode(opencv_image2str).decode('ascii'),'no_of_circles':circle_detected})
 
 
-@app.route('/co lordetection', methods =['POST'])
+@app.route('/colordetection', methods =['POST'])
 def color_detection():
     file = request.files.get('image')
     request_data = request.json
