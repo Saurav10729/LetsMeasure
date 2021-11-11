@@ -25,13 +25,14 @@ def object_detection_rectangle():
     h = image.height
 
     opencv_image = generate_image_rectangle(opencv_image)
-
     image2str=pickle.dumps(opencv_image)
     print("function was accessed")
-    image_encode = base64.b64encode(image2str).decode('ascii')
-    print(type(image_encode))
+    image_encode = base64.b64encode(image2str).decode()
     print(image_encode)
-    return jsonify({'message': 'success', 'size': [w,h],'image':base64.b64encode(image2str).decode('ascii')})
+    print(type(image_encode))
+
+
+    return jsonify({'message': 'success', 'size': [w,h],'image':image_encode})
 
 @app.route('/object_measurement_circle',methods=['POST'])
 def object_measurement_circle():
@@ -56,20 +57,24 @@ def object_measurement_circle():
 @app.route('/colordetection', methods =['POST'])
 def color_detection():
     file = request.files.get('image')
-    request_data = request.json
+    request_data = request.data
     print(request_data)
-    print(type(request_data))
-    x = request_data['x-coord']
-    print(x)
-    y = request_data['y-coord']
-    print(y)
-    image = Image.open(file.stream)
-    opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+    # print(type(request_data))
+    # x= request_data["x-coord"]
+    # # x_value = int(x)
+    # # print(x_value)
+    # y = request_data["y-coord"]
+    # # y_value = int(y)
+    # # print(y_value)
+    # image = Image.open(file.stream)
+    # opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+    #
+    # B,G,R = opencv_image [x_value,y_value]
+    # color_name = get_color_name(R,G,B)
+    #
+    # return jsonify({'msg': 'success', 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
+    return jsonify({'msg': 'success'})
 
-    B,G,R = opencv_image [x,y]
-    color_name = get_color_name(R,G,B)
-
-    return jsonify({'msg': 'success', 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
     # return "Color Detection feature"
 
 @app.route('/angledetector', methods =['POST'])

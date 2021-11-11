@@ -4,19 +4,23 @@ import pickle
 import base64
 import json
 
-url = " http://6c4e-110-44-127-181.ngrok.io/object_measurement_rectangle"
+url = "http://aa57-103-10-31-50.ngrok.io/object_measurement_rectangle"
 
 
 my_img = {'image': open('Testimages\laptopwitharuco.jpg', 'rb')}
 
 r = requests.post(url, files=my_img)
-js = r.json()
-imagereturn= js['image']
+if( r.ok):
+    print("response recieved")
+    js = r.json()
 
+imagereturn= js['image']
+print(type(imagereturn))
 imdata = base64.b64decode(imagereturn)
+# print(imdata)
 print(type(imdata))
 image = pickle.loads(imdata)
-print(imdata)
+# print(js)
 pilimage =Image.fromarray(image[...,::-1])
 
 pilimage.show()
