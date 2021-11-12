@@ -4,10 +4,10 @@ import pickle
 import base64
 import json
 
-url = "http://240d-103-10-31-50.ngrok.io/object_measurement_rectangle"
+url = "http://2565-110-44-116-42.ngrok.io/object_measurement_rectangle"
 
 
-my_img = {'image': open('Testimages\laptopwitharuco.jpg', 'rb')}
+my_img = {'image': open('Testimages\imagewithcircle_aruco.jpg', 'rb')}
 
 r = requests.post(url, files=my_img)
 if( r.ok):
@@ -21,7 +21,7 @@ imdata = base64.b64decode(imagereturn)
 print(type(imdata))
 # image = pickle.loads(imdata)
 # print(js)
-# pilimage =Image.fromarray(image[...,::-1])
+# pilimage =Image.fromarray(image[...,::-1])    
 # pilimage.show()
 with open('result.jpg','wb') as file:
     file.write(imdata)
