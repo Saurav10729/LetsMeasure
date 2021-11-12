@@ -15,6 +15,10 @@ app = Flask(__name__)
 def index():
     return "Index of APi"
 
+@app.route('/favicon.ico')
+def favicon():
+    return('Favicon exception handler')
+
 @app.route('/object_measurement_rectangle',methods= ['POST'])
 def object_detection_rectangle():
     file = request.files['image']
@@ -59,21 +63,29 @@ def object_measurement_circle():
 @app.route('/colordetection', methods =['POST'])
 def color_detection():
     file = request.files.get('image')
-    request_data = request.data
-    print(request_data)
+    request_data = request.form.to_dict()
+    # print(request_data)
     print(type(request_data))
+
     x = request_data['x-coord']
-    x_value = int(x)
-    print(x)
     y = request_data['y-coord']
+    print(x)
     print(y)
+
+    x_value = int(x)
+    y_value = int(y)
+    print(type(x_value))
+    print(type(y_value))
+
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
 
-    B,G,R = opencv_image [x,y]
+    B,G,R = opencv_image [x_value,y_value]
     color_name = get_color_name(R,G,B)
+    print(type(B))
+    print(B)
 
-    return jsonify({'msg': 'success', 'colorname':color_name, 'R-value':R,'G-value':G,'B-value':B})
+    return jsonify({'msg': 'success', 'colorname':color_name, 'R-value':int(R),'G-value':int(G),'B-value':int(B)})
     # return "Color Detection feature"
 
 @app.route('/angledetector', methods =['POST'])
