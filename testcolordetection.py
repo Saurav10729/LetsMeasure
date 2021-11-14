@@ -4,10 +4,10 @@ import pickle
 import base64
 import json
 
-url="http://f984-110-44-121-21.ngrok.io/colordetection"
+url="http://2cb6-103-10-28-138.ngrok.io/colordetection"
 my_img = {'image': open('Testimages\laptopwitharuco.jpg', 'rb')}
 x = 100
-y = 150
+y = 121
 
 # header = {'Content-type':'application/json'}
 # x_str = str(x)
@@ -15,8 +15,8 @@ y = 150
 
 datas = {
     'msge':'sent',
-    'x-coord':'100',
-    'y-coord':'150'
+    'x-coord': str(x),
+    'y-coord':str(y)
 }
 # datas_json = json.dumps(datas)
 # print(type(datas))

@@ -4,7 +4,7 @@ import pickle
 import base64
 import json
 from flask import jsonify
-url = "http://240d-103-10-31-50.ngrok.io/object_measurement_circle"
+url = "http://2cb6-103-10-28-138.ngrok.io/object_measurement_circle"
 
 my_img = {'image': open('Testimages\imagewithcircle_aruco.jpg', 'rb')}
 r = requests.post(url, files=my_img)
