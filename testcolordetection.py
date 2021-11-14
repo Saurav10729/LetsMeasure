@@ -4,7 +4,7 @@ import pickle
 import base64
 import json
 
-url="http://2565-110-44-116-42.ngrok.io/colordetection"
+url="http://f984-110-44-121-21.ngrok.io/colordetection"
 my_img = {'image': open('Testimages\laptopwitharuco.jpg', 'rb')}
 x = 100
 y = 150
