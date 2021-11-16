@@ -29,7 +29,6 @@ def object_detection_rectangle():
 
     opencv_image = generate_image_rectangle(opencv_image)
     retval,image2str = cv2.imencode('.jpg',opencv_image)
-    # image2str=pickle.dumps(opencv_image)
     print("function was accessed")
     image_encode = base64.b64encode(image2str).decode()
     print(type(opencv_image))
@@ -51,12 +50,8 @@ def object_measurement_circle():
 
     retval,image2str = cv2.imencode('.jpg',opencv_image)
     image_encode = base64.b64encode(image2str).decode()
-    # opencv_image2str = pickle.dumps(opencv_image)
     print("function was accessed")
 
-    # image1_encode = base64.b64encode(opencv_image2str).decode('ascii')
-
-    # print(type(image1_encode))
     return jsonify({'message': 'success', 'size': [w,h],'image':image_encode,'no_of_circles':circle_detected})
 
 
@@ -90,7 +85,6 @@ def color_detection():
 
 @app.route('/angledetector', methods =['POST'])
 def angle_detection():
-
     return "This function returns angle value in degree between 2 edges"
 
 
