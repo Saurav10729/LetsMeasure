@@ -4,7 +4,7 @@ import pickle
 import base64
 import json
 
-url = "http://2cb6-103-10-28-138.ngrok.io/object_measurement_rectangle"
+url = "https://letsmeasuretest2.herokuapp.com/object_measurement_rectangle"
 
 
 my_img = {'image': open('Testimages\laptopwitharuco.jpg', 'rb')}
