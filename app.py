@@ -9,17 +9,17 @@ import json
 from object_detector import HomogeneousBgDetector
 from generate_image import generate_image_rectangle, generate_image_circle
 from colorname_generator import get_color_name
-app = Flask(__name__)
+letsmeasure_app = Flask(__name__)
 
-@app.route('/')
+@letsmeasure_app.route('/')
 def index():
     return "Index of APi"
 
-@app.route('/favicon.ico')
+@letsmeasure_app.route('/favicon.ico')
 def favicon():
     return('Favicon exception handler')
 
-@app.route('/object_measurement_rectangle',methods= ['POST'])
+@letsmeasure_app.route('/object_measurement_rectangle',methods= ['POST'])
 def object_detection_rectangle():
     file = request.files['image']
     image = Image.open(file.stream)
@@ -37,7 +37,7 @@ def object_detection_rectangle():
 
     return jsonify({'message': 'success', 'size': [w,h],'image':image_encode})
 
-@app.route('/object_measurement_circle',methods=['POST'])
+@letsmeasure_app.route('/object_measurement_circle',methods=['POST'])
 def object_measurement_circle():
     file = request.files['image']
     image = Image.open(file.stream)
@@ -55,7 +55,7 @@ def object_measurement_circle():
     return jsonify({'message': 'success', 'size': [w,h],'image':image_encode,'no_of_circles':circle_detected})
 
 
-@app.route('/colordetection', methods =['POST'])
+@letsmeasure_app.route('/colordetection', methods =['POST'])
 def color_detection():
     file = request.files.get('image')
     request_data = request.form.to_dict()
@@ -83,9 +83,9 @@ def color_detection():
     return jsonify({'msg': 'success', 'colorname':color_name, 'R-value':int(R),'G-value':int(G),'B-value':int(B)})
     # return "Color Detection feature"
 
-@app.route('/angledetector', methods =['POST'])
+@letsmeasure_app.route('/angledetector', methods =['POST'])
 def angle_detection():
     return "This function returns angle value in degree between 2 edges"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    letsmeasure_app.run(debug=True)
