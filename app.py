@@ -87,6 +87,5 @@ def color_detection():
 def angle_detection():
     return "This function returns angle value in degree between 2 edges"
 
-
 if __name__ == "__main__":
     app.run(debug=True)
