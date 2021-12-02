@@ -56,7 +56,7 @@ def generate_image_circle(opencv_image):
         pixel_cm_ratio = aruco_perimeter / 20
         grayimage = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
         blurimage = cv2.GaussianBlur(grayimage, (21, 21), cv2.BORDER_DEFAULT)
-        circle_x_y = [[0,0]]
+        circle_x_y = [[0,0,0]]
         radii = np.arange(0, 310, 10)
         for idx in range(len(radii)-1):
             # print(" 1st loop")
@@ -73,43 +73,38 @@ def generate_image_circle(opencv_image):
                 # print("innerloop")
                 radius = i[2] / pixel_cm_ratio
                 diameter = radius * 2
-                coord =[i[0],i[1]]
 
-                offset1 = 50 + (20 * count)
-                offset2 = offset1 + 20
+                circle_data =[i[0],i[1],round(radius,2)]
+                offset1 = 20
+                offset2 = offset1 + 30
 
                 for j in circle_x_y:
-                    x_range = range(j[0] - 10, j[0] + 10,1)
-                    y_range = range(j[1] - 10, j[1] + 10,1)
-                    if (coord[0] in x_range) and (coord[1] in y_range):
+                    x_range = range(j[0] - 20, j[0] + 20,1)
+                    y_range = range(j[1] - 20, j[1] + 20,1)
+                    if (circle_data[0] in x_range) and (circle_data[1] in y_range):
                         flag = "false"
                     else:
                         flag = 'true'
 
                 if flag == 'true':
-                    circle_x_y.append(coord)
+                    circle_x_y.append(circle_data)
                     cv2.circle(image_copy, (i[0], i[1]), i[2], (0, 255, 0), 1)
                     cv2.circle(image_copy, (i[0], i[1]), 2, (0, 0, 255), 3)
                     cv2.putText(image_copy, "Radius: " + str(round(radius, 2)) + ' cm', (i[0] - 70, i[1] + offset1),
-                                cv2.FONT_HERSHEY_SIMPLEX, .5, (241, 231, 64), 2)
+                                cv2.FONT_HERSHEY_SIMPLEX, .8, (241, 231, 64), 2)
                     cv2.putText(image_copy, "Diameter: " + str(round(diameter, 2)) + ' cm', (i[0] - 70, i[1] + offset2),
-                                cv2.FONT_HERSHEY_SIMPLEX, .5, (241, 231, 64), 2)
+                                cv2.FONT_HERSHEY_SIMPLEX, .8, (241, 231, 64), 2)
 
-                # if coord not in circle_x_y:
-                #     circle_x_y.append(coord)
-                #     cv2.circle(image_copy, (i[0], i[1]), i[2], (0, 255, 0), 1)
-                #     cv2.circle(image_copy, (i[0], i[1]), 2, (0, 0, 255), 3)
-                #     cv2.putText(image_copy, "Radius: " + str(round(radius, 2)) + ' cm', (i[0] - 70, i[1] + offset1),
-                #                 cv2.FONT_HERSHEY_SIMPLEX, .5, (241, 231, 64), 2)
-                #     cv2.putText(image_copy, "Diameter: " + str(round(diameter, 2)) + ' cm', (i[0] - 70, i[1] + offset2),
-                #                 cv2.FONT_HERSHEY_SIMPLEX, .5, (241, 231, 64), 2)
                 count = count +1
                 print(circle_x_y)
 
         no_of_circle = len(circle_x_y) -1
-        return (image_copy,no_of_circle)
+        circle_x_y.pop(0)
+        for i in circle_x_y:
+            print(i)
+        return (image_copy,no_of_circle,circle_x_y)
 
-    return (image_copy, -1)
+    return (image_copy, -1,None)
 
     #     all_circles = cv2.HoughCircles(blurimage, cv2.HOUGH_GRADIENT, 0.9, 120)
     #     print(type(all_circles))

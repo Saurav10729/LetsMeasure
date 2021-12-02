@@ -45,14 +45,18 @@ def object_measurement_circle():
     w = image.width
     h = image.height
 
-    opencv_image,circle_detected = generate_image_circle(opencv_image)
+    opencv_image,circle_detected,circle_x_y = generate_image_circle(opencv_image)
+
     print(circle_detected)
+    radius = []
+    for i in circle_x_y:
+        radius.append(i[2])
 
     retval,image2str = cv2.imencode('.jpg',opencv_image)
     image_encode = base64.b64encode(image2str).decode()
     print("function was accessed")
 
-    return jsonify({'message': 'success', 'size': [w,h],'image':image_encode,'no_of_circles':circle_detected})
+    return jsonify({'message': 'success', 'size': [w,h],'image':image_encode,'no_of_circles':circle_detected,'radius':radius})
 
 
 @letsmeasure_app.route('/colordetection', methods =['POST'])
