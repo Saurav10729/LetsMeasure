@@ -1,4 +1,3 @@
-
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -7,10 +6,10 @@ import math
 
 from object_detector import HomogeneousBgDetector
 
-
 parameters = cv2.aruco.DetectorParameters_create()
 aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_50)
 detector = HomogeneousBgDetector()
+
 
 def generate_image_rectangle(opencv_image):
     corners, _, _ = cv2.aruco.detectMarkers(opencv_image, aruco_dict, parameters=parameters)
@@ -26,7 +25,6 @@ def generate_image_rectangle(opencv_image):
         contours = detector.detect_objects(opencv_image)
 
         for cnt in contours:
-
             rect = cv2.minAreaRect(cnt)
             (x, y), (w, h), angle = rect
 
@@ -40,11 +38,14 @@ def generate_image_rectangle(opencv_image):
 
             cv2.polylines(opencv_image, [box], True, (255, 0, 0), 2)
 
-            cv2.putText(opencv_image, "Width {} cm".format(round(object_width, 1)), (int(x - 100), int(y - 20)),cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
+            cv2.putText(opencv_image, "Width {} cm".format(round(object_width, 1)), (int(x - 100), int(y - 20)),
+                        cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
 
-            cv2.putText(opencv_image, "Height {} cm".format(round(object_height, 1)), (int(x - 100), int(y + 15)),cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
+            cv2.putText(opencv_image, "Height {} cm".format(round(object_height, 1)), (int(x - 100), int(y + 15)),
+                        cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
 
     return opencv_image
+
 
 def generate_image_circle(opencv_image):
     image_copy = opencv_image.copy()
@@ -56,31 +57,32 @@ def generate_image_circle(opencv_image):
         pixel_cm_ratio = aruco_perimeter / 20
         grayimage = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
         blurimage = cv2.GaussianBlur(grayimage, (21, 21), cv2.BORDER_DEFAULT)
-        circle_x_y = [[0,0,0]]
+        circle_x_y = [[0, 0, 0]]
         radii = np.arange(0, 310, 10)
-        for idx in range(len(radii)-1):
+        for idx in range(len(radii) - 1):
             # print(" 1st loop")
             minRadius = radii[idx] + 1
             maxRadius = radii[idx + 1]
-            circles = cv2.HoughCircles(blurimage, cv2.HOUGH_GRADIENT, 1, 5, param1=25, param2=75, minRadius=minRadius, maxRadius=maxRadius)
+            circles = cv2.HoughCircles(blurimage, cv2.HOUGH_GRADIENT, 1, 5, param1=25, param2=75, minRadius=minRadius,
+                                       maxRadius=maxRadius)
             if circles is None:
                 continue
             circles = np.uint16(np.around(circles))
             # print(circles)
-            count =1
+            count = 1
             flag = 'true'
             for i in circles[0, :]:
                 # print("innerloop")
                 radius = i[2] / pixel_cm_ratio
                 diameter = radius * 2
 
-                circle_data =[i[0],i[1],round(radius,2)]
+                circle_data = [i[0], i[1], round(radius, 2)]
                 offset1 = 20
                 offset2 = offset1 + 30
 
                 for j in circle_x_y:
-                    x_range = range(j[0] - 20, j[0] + 20,1)
-                    y_range = range(j[1] - 20, j[1] + 20,1)
+                    x_range = range(j[0] - 20, j[0] + 20, 1)
+                    y_range = range(j[1] - 20, j[1] + 20, 1)
                     if (circle_data[0] in x_range) and (circle_data[1] in y_range):
                         flag = "false"
                     else:
@@ -95,16 +97,16 @@ def generate_image_circle(opencv_image):
                     cv2.putText(image_copy, "Diameter: " + str(round(diameter, 2)) + ' cm', (i[0] - 70, i[1] + offset2),
                                 cv2.FONT_HERSHEY_SIMPLEX, .8, (241, 231, 64), 2)
 
-                count = count +1
+                count = count + 1
                 print(circle_x_y)
 
-        no_of_circle = len(circle_x_y) -1
+        no_of_circle = len(circle_x_y) - 1
         circle_x_y.pop(0)
         for i in circle_x_y:
             print(i)
-        return (image_copy,no_of_circle,circle_x_y)
+        return (image_copy, no_of_circle, circle_x_y)
 
-    return (image_copy, -1,None)
+    return (image_copy, -1, None)
 
     #     all_circles = cv2.HoughCircles(blurimage, cv2.HOUGH_GRADIENT, 0.9, 120)
     #     print(type(all_circles))
@@ -140,4 +142,3 @@ def generate_image_circle(opencv_image):
     #     else:
     #         return(image_copy,0)
     # return(image_copy,-1)
-
