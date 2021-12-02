@@ -20,7 +20,7 @@ def index():
 
 @lets_measure_app.route('/favicon.ico')
 def favicon():
-    return ('Favicon exception handler')
+    return 'Favicon exception handler'
 
 
 @lets_measure_app.route('/object_measurement_rectangle', methods=['POST'])
