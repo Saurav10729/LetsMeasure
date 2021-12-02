@@ -1,6 +1,7 @@
 import cv2
 
-class HomogeneousBgDetector():
+
+class HomogeneousBgDetector:
     def __init__(self):
         pass
 
@@ -16,4 +17,3 @@ class HomogeneousBgDetector():
                 objects_contours.append(cnt)
 
         return objects_contours
-
