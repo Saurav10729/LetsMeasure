@@ -96,8 +96,10 @@ def angle_detection():
     pointsList.append([x1, y1])
     pointsList.append([x2, y2])
     pointsList.append([x3, y3])
-    angle_value = get_angle(pointsList)
-    return jsonify({'msg': 'success', 'angle_value':angle_value})
+    if (len(pointsList)==3):
+        angle_value = get_angle(pointsList)
+        return jsonify({'msg': 'success', 'angle_value':angle_value})
+    return  jsonify({'msg': '3 coordinates are needed for angle estimation', 'angle_value':None})
 
 if __name__ == "__main__":
     lets_measure_app.run(debug=True)
