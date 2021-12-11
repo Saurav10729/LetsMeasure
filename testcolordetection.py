@@ -24,7 +24,7 @@ print(messagereturned)
 R = js['R-value']
 G = js['G-value']
 B = js['B-value']
-color_name = js['colorname']
+color_name = js['color name']
 
 print('R-value:', R)
 print('G-value:', G)

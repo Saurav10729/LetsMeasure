@@ -24,9 +24,10 @@ if r.ok:
     print("request sent")
     print(r.json())
 js = r.json()
-angle = js['angle_value']
-
-
-print("angle between x1,y1 , x2,y2 and x3,y3 was found to be",angle,u"\N{DEGREE SIGN}")
+if js['msge'] == "3 coordinates are needed for angle estimation":
+    print("Oops, it seems that you didnt provide 3 coordinates")
+else:
+    angle = js['angle_value']
+    print("angle between x1,y1 , x2,y2 and x3,y3 was found to be",angle,u"\N{DEGREE SIGN}")
 
 
