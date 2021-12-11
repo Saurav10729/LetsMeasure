@@ -9,7 +9,7 @@ import json
 from object_detector import HomogeneousBgDetector
 from generate_image import generate_image_rectangle, generate_image_circle
 from colorname_generator import get_color_name
-
+from angle_detection import gradient, get_angle
 lets_measure_app = Flask(__name__)
 
 
@@ -83,8 +83,21 @@ def color_detection():
 
 @lets_measure_app.route('/angledetector', methods=['POST'])
 def angle_detection():
-    return "This function returns angle value in degree between 2 edges"
+    pointsList = []
+    request_data = request.form.to_dict()
 
+    x1 = int(request_data['x1-coord'])
+    y1 = int(request_data['y1-coord'])
+    x2 = int(request_data['x2-coord'])
+    y2 = int(request_data['y2-coord'])
+    x3 = int(request_data['x3-coord'])
+    y3 = int(request_data['y3-coord'])
+
+    pointsList.append([x1, y1])
+    pointsList.append([x2, y2])
+    pointsList.append([x3, y3])
+    angle_value = get_angle(pointsList)
+    return jsonify({'msg': 'success', 'angle_value':angle_value})
 
 if __name__ == "__main__":
     lets_measure_app.run(debug=True)
