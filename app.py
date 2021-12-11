@@ -10,6 +10,7 @@ from object_detector import HomogeneousBgDetector
 from generate_image import generate_image_rectangle, generate_image_circle
 from colorname_generator import get_color_name
 from angle_detection import gradient, get_angle
+
 lets_measure_app = Flask(__name__)
 
 
@@ -31,7 +32,7 @@ def object_detection_rectangle():
     w = image.width
     h = image.height
     opencv_image = generate_image_rectangle(opencv_image)
-    retval, image2str = cv2.imencode('.jpg', opencv_image)
+    return_value, image2str = cv2.imencode('.jpg', opencv_image)
     print("function was accessed")
     image_encode = base64.b64encode(image2str).decode()
     print(type(opencv_image))
@@ -52,7 +53,7 @@ def object_measurement_circle():
     radius = []
     for i in circle_x_y:
         radius.append(i[2])
-    retval, image2str = cv2.imencode('.jpg', opencv_image)
+    return_value, image2str = cv2.imencode('.jpg', opencv_image)
     image_encode = base64.b64encode(image2str).decode()
     print("function was accessed")
     return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
@@ -78,7 +79,7 @@ def color_detection():
     color_name = get_color_name(R, G, B)
     print(type(B))
     print(B)
-    return jsonify({'msg': 'success', 'colorname': color_name, 'R-value': int(R), 'G-value': int(G), 'B-value': int(B)})
+    return jsonify({'msg': 'success', 'color name': color_name, 'R-value': int(R), 'G-value': int(G), 'B-value': int(B)})
 
 
 @lets_measure_app.route('/angledetector', methods=['POST'])
@@ -96,10 +97,11 @@ def angle_detection():
     pointsList.append([x1, y1])
     pointsList.append([x2, y2])
     pointsList.append([x3, y3])
-    if (len(pointsList)==3):
+    if len(pointsList) == 3:
         angle_value = get_angle(pointsList)
-        return jsonify({'msg': 'success', 'angle_value':angle_value})
-    return  jsonify({'msg': '3 coordinates are needed for angle estimation', 'angle_value':None})
+        return jsonify({'msg': 'success', 'angle_value': angle_value})
+    return jsonify({'msg': '3 coordinates are needed for angle estimation', 'angle_value': None})
+
 
 if __name__ == "__main__":
     lets_measure_app.run(debug=True)
