@@ -9,7 +9,7 @@ import json
 from object_detector import HomogeneousBgDetector
 from generate_image import generate_image_rectangle, generate_image_circle
 from colorname_generator import get_color_name
-from angle_detection import gradient, get_angle
+from angle_detection import gradient, get_angle,getAngle
 
 lets_measure_app = Flask(__name__)
 
@@ -26,7 +26,11 @@ def favicon():
 
 @lets_measure_app.route('/object_measurement_rectangle', methods=['POST'])
 def object_detection_rectangle():
-    file = request.files['image']
+    try:
+        file = request.files['image']
+    except requests.exceptions.RequestException as e:
+        return jsonify({'msg': e, 'size': [None, None], 'image': None})
+
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     w = image.width
@@ -43,7 +47,10 @@ def object_detection_rectangle():
 
 @lets_measure_app.route('/object_measurement_circle', methods=['POST'])
 def object_measurement_circle():
-    file = request.files['image']
+    try:
+        file = request.files['image']
+    except requests.exceptions.RequestException as e:
+        return jsonify({'message': 'success', 'size': [None, None], 'image': None, 'no_of_circles': None,'radius': None})
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     w = image.width
@@ -62,30 +69,49 @@ def object_measurement_circle():
 
 @lets_measure_app.route('/colordetection', methods=['POST'])
 def color_detection():
-    file = request.files.get('image')
-    request_data = request.form.to_dict()
-    print(type(request_data))
+    try:
+        file = request.files.get('image')
+        request_data = request.form.to_dict()
+    except requests.exceptions.Timeout as e1:
+        return jsonify({'msg': e1, 'angle_value': None})
+    except requests.exceptions.ConnectionError as e2:
+        return jsonify({'msg': e2, 'angle_value': None})
+    except requests.exceptions.HTTPError as e3:
+        return jsonify({'msg': e3, 'angle_value': None})
+    except requests.exceptions.RequestException as e4:
+        return jsonify({'msg': e4, 'angle_value': None})
+
+    # print(type(request_data))
     x = request_data['x-coord']
     y = request_data['y-coord']
-    print(x)
-    print(y)
+    # print(x)
+    # print(y)
     x_value = int(x)
     y_value = int(y)
-    print(type(x_value))
-    print(type(y_value))
+    # print(type(x_value))
+    # print(type(y_value))
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     B, G, R = opencv_image[x_value, y_value]
     color_name = get_color_name(R, G, B)
-    print(type(B))
-    print(B)
+    # print(type(B))
+    # print(B)
     return jsonify({'msg': 'success', 'color name': color_name, 'R-value': int(R), 'G-value': int(G), 'B-value': int(B)})
 
 
 @lets_measure_app.route('/angledetector', methods=['POST'])
 def angle_detection():
     pointsList = []
-    request_data = request.form.to_dict()
+    try:
+        request_data = request.form.to_dict()
+    except requests.exceptions.Timeout as e1:
+        return jsonify({'msg': e1, 'angle_value': None})
+    except requests.exceptions.ConnectionError as e2:
+        return jsonify({'msg': e2, 'angle_value': None})
+    except requests.exceptions.HTTPError as e3:
+        return jsonify({'msg': e3, 'angle_value': None})
+    except requests.exceptions.RequestException as e4:
+        return jsonify({'msg': e4, 'angle_value': None})
 
     x1 = int(request_data['x1-coord'])
     y1 = int(request_data['y1-coord'])
@@ -97,10 +123,11 @@ def angle_detection():
     pointsList.append([x1, y1])
     pointsList.append([x2, y2])
     pointsList.append([x3, y3])
+
     if len(pointsList) == 3:
-        angle_value = get_angle(pointsList)
-        return jsonify({'msg': 'success', 'angle_value': angle_value})
-    return jsonify({'msg': '3 coordinates are needed for angle estimation', 'angle_value': None})
+        angle_value = getAngle(pointsList)
+        return jsonify({'msg': 'success', 'angle_value': int(angle_value)})
+    return jsonify({'msg': 'didnt recieve provide 3 coordinate value for angle estimation', 'angle_value': None})
 
 
 if __name__ == "__main__":
