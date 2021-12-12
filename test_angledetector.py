@@ -6,8 +6,8 @@ import json
 
 url = "http://127.0.0.1:5000/angledetector"
 
-x1, x2, x3 = 20, 11, 10
-y1, y2, y3 = 10, 10, 20
+x1, x2, x3 = 30, 10, 10
+y1, y2, y3 = 10, 10, 28
 
 datas = {
     'msge': 'sent',
@@ -24,7 +24,7 @@ if r.ok:
     print("request sent")
     print(r.json())
 js = r.json()
-if js['msge'] == "3 coordinates are needed for angle estimation":
+if js['msg'] == "didnt recieve provide 3 coordinate value for angle estimation":
     print("Oops, it seems that you didnt provide 3 coordinates")
 else:
     angle = js['angle_value']
