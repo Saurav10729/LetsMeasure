@@ -9,8 +9,8 @@ import json
 from object_detector import HomogeneousBgDetector
 from generate_image import generate_image_rectangle, generate_image_circle
 from colorname_generator import get_color_name
-from angle_detection import gradient, get_angle,getAngle
-
+from angle_detection import gradient,getAngle
+from area_estimator import area_polygon, area_circle, area_irregular,image_preprocessing
 lets_measure_app = Flask(__name__)
 
 
@@ -128,6 +128,24 @@ def angle_detection():
         angle_value = getAngle(pointsList)
         return jsonify({'msg': 'success', 'angle_value': int(angle_value)})
     return jsonify({'msg': 'didnt recieve provide 3 coordinate value for angle estimation', 'angle_value': None})
+
+@lets_measure_app.route('/area_estimation_polygon', methods = ['POST'] )
+def area_estimation_polygon():
+    try:
+        file = request.files['image']
+    except requests.exceptions.RequestException as e:
+        return jsonify({'msg': e, 'size': [None, None], 'image': None})
+
+    image = Image.open(file.stream)
+    opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+    w = image.width
+    h = image.height
+    dilated_image = image_preprocessing(opencv_image)
+    opencv_image,area_list = area_polygon(opencv_image,dilated_image)
+    return_value, image2str = cv2.imencode('.jpg', opencv_image)
+    print("function was accessed")
+    image_encode = base64.b64encode(image2str).decode()
+    return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode,'area-polygon':area_list})
 
 
 if __name__ == "__main__":
