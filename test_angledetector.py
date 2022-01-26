@@ -9,7 +9,7 @@ url = "http://127.0.0.1:5000/angledetector"
 x1, x2, x3 = 30, 10, 10
 y1, y2, y3 = 10, 10, 28
 
-datas = {
+data_value = {
     'msge': 'sent',
     'x1-coord': str(x1),
     'y1-coord': str(y1),
@@ -19,15 +19,13 @@ datas = {
     'y3-coord': str(y3)
 }
 print("done")
-r = requests.post(url, data=datas)
+r = requests.post(url, data=data_value)
 if r.ok:
     print("request sent")
     print(r.json())
 js = r.json()
-if js['msg'] == "didnt recieve provide 3 coordinate value for angle estimation":
-    print("Oops, it seems that you didnt provide 3 coordinates")
+if js['msg'] == "did not receive provide 3 coordinate value for angle estimation":
+    print("Oops, it seems that you did not provide 3 coordinates")
 else:
     angle = js['angle_value']
-    print("angle between x1,y1 , x2,y2 and x3,y3 was found to be",angle,u"\N{DEGREE SIGN}")
-
-
+    print("angle between x1,y1 , x2,y2 and x3,y3 was found to be", angle, u"\N{DEGREE SIGN}")

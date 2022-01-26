@@ -4,7 +4,7 @@ import pandas as pd
 global cname
 csv_path = 'CSV/colors.csv'
 clicked = False
-r = g = b = xpos = ypos = 0
+r = g = b = x_pos = y_pos = 0
 index = ['color', 'color_name', 'hex', 'R', 'G', 'B']
 df = pd.read_csv(csv_path, names=index, header=None)
 
