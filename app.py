@@ -9,8 +9,9 @@ import json
 from object_detector import HomogeneousBgDetector
 from generate_image import generate_image_rectangle, generate_image_circle
 from colorname_generator import get_color_name
-from angle_detection import gradient,getAngle
-from area_estimator import area_polygon, area_circle, area_irregular,image_preprocessing
+from angle_detection import getAngle
+from area_estimator import area_polygon, area_circle, area_irregular, image_preprocessing
+
 lets_measure_app = Flask(__name__)
 
 
@@ -25,7 +26,7 @@ def favicon():
 
 
 @lets_measure_app.route('/object_measurement_rectangle', methods=['POST'])
-def object_detection_rectangle():
+def dimension_measurement_rectangle():
     try:
         file = request.files['image']
     except requests.exceptions.RequestException as e:
@@ -46,25 +47,34 @@ def object_detection_rectangle():
 
 
 @lets_measure_app.route('/object_measurement_circle', methods=['POST'])
-def object_measurement_circle():
+def dimension_measurement_circle():
     try:
         file = request.files['image']
     except requests.exceptions.RequestException as e:
-        return jsonify({'message': 'success', 'size': [None, None], 'image': None, 'no_of_circles': None,'radius': None})
+        return jsonify(
+            {'message': e, 'size': [None, None], 'image': None, 'no_of_circles': None, 'radius': None})
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     w = image.width
     h = image.height
     opencv_image, circle_detected, circle_x_y = generate_image_circle(opencv_image)
-    print(circle_detected)
-    radius = []
-    for i in circle_x_y:
-        radius.append(i[2])
     return_value, image2str = cv2.imencode('.jpg', opencv_image)
     image_encode = base64.b64encode(image2str).decode()
-    print("function was accessed")
-    return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
-                    'radius': radius})
+    print("dimension_measurement_circle() was accessed")
+
+    print(circle_detected)
+    if circle_detected == -1:
+        return jsonify(
+            {'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': -1, 'radius': None})
+    elif circle_detected == 0:
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
+                        'radius': None})
+    else:
+        radius = []
+        for i in circle_x_y:
+            radius.append(i[2])
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
+                        'radius': radius})
 
 
 @lets_measure_app.route('/colordetection', methods=['POST'])
@@ -96,11 +106,12 @@ def color_detection():
     color_name = get_color_name(R, G, B)
     # print(type(B))
     # print(B)
-    return jsonify({'msg': 'success', 'color name': color_name, 'R-value': int(R), 'G-value': int(G), 'B-value': int(B)})
+    return jsonify(
+        {'msg': 'success', 'color name': color_name, 'R-value': int(R), 'G-value': int(G), 'B-value': int(B)})
 
 
 @lets_measure_app.route('/angledetector', methods=['POST'])
-def angle_detection():
+def angle_estimation():
     pointsList = []
     try:
         request_data = request.form.to_dict()
@@ -127,9 +138,10 @@ def angle_detection():
     if len(pointsList) == 3:
         angle_value = getAngle(pointsList)
         return jsonify({'msg': 'success', 'angle_value': int(angle_value)})
-    return jsonify({'msg': 'didnt recieve provide 3 coordinate value for angle estimation', 'angle_value': None})
+    return jsonify({'msg': 'did not receive provide 3 coordinate value for angle estimation', 'angle_value': None})
 
-@lets_measure_app.route('/area_estimation_polygon', methods = ['POST'] )
+
+@lets_measure_app.route('/area_estimation_polygon', methods=['POST'])
 def area_estimation_polygon():
     try:
         file = request.files['image']
@@ -140,12 +152,45 @@ def area_estimation_polygon():
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     w = image.width
     h = image.height
-    dilated_image = image_preprocessing(opencv_image)
-    opencv_image,area_list = area_polygon(opencv_image,dilated_image)
-    return_value, image2str = cv2.imencode('.jpg', opencv_image)
-    print("function was accessed")
+    image_canny = image_preprocessing(opencv_image)
+    result_image, no_of_object, area_list = area_polygon(opencv_image, image_canny)
+    return_value, image2str = cv2.imencode('.jpg', result_image)
+    print("area_estimation_polygon was accessed")
     image_encode = base64.b64encode(image2str).decode()
-    return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode,'area-polygon':area_list})
+    if no_of_object > 1:
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object': no_of_object,
+                        'area-polygon': area_list})
+    else:
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object': no_of_object,
+                        'area-polygon': None})
+
+
+@lets_measure_app.route('/area_estimation_circle', methods=['POST'])
+def area_estimation_circle():
+    try:
+        file = request.files['image']
+    except requests.exceptions.RequestException as e:
+        return jsonify({'msg': e, 'size': [None, None], 'image': None})
+
+    image = Image.open(file.stream)
+    opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+    w = image.width
+    h = image.height
+    image_canny = image_preprocessing(opencv_image)
+    result_image, circle_detected, circle_x_y_area = area_circle(opencv_image, image_canny)
+    return_value, image2str = cv2.imencode('.jpg', result_image)
+    print("area_estimation_circle() was accessed")
+    image_encode = base64.b64encode(image2str).decode()
+
+    if circle_detected > 0:
+        area_list = []
+        for i in circle_x_y_area:
+            area_list.append(i[3])
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
+                        'Area-circle': area_list})
+    else:
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
+                        'Area-circle': None})
 
 
 if __name__ == "__main__":
