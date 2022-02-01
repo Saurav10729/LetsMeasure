@@ -43,7 +43,7 @@ def area_polygon(opencv_image, image_canny):
                 no_of_objects += 1
                 cv2.drawContours(opencv_image, cnt, -1, (0, 255, 0), 25)
                 perimeter = cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, .02 * perimeter, True)
+                approx = cv2.approxPolyDP(cnt, .04 * perimeter, True)
                 print(len(approx))
                 x, y, w, h = cv2.boundingRect(approx)
                 # cv2.rectangle(opencv_image,(x,y),(x+w,y+h), (0, 255, 0), 5)

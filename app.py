@@ -26,33 +26,68 @@ def favicon():
 
 
 @lets_measure_app.route('/object_measurement_rectangle', methods=['POST'])
-def dimension_measurement_rectangle():
+def dimension_measurement_polygon():
     try:
         file = request.files['image']
-    except requests.exceptions.RequestException as e:
-        return jsonify({'msg': e, 'size': [None, None], 'image': None})
+    except requests.exceptions.Timeout as e1:
+        return jsonify({'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None, 'no of object': None,
+                        "dimensional data": None})
+
+    except requests.exceptions.ConnectionError as e2:
+        return jsonify({'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None], 'image': None, 'no of object': None,
+                        "dimensional data": None})
+
+    except requests.exceptions.HTTPError as e3:
+        return jsonify({'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None], 'image': None, 'no of object': None,
+                        "dimensional data": None})
+
+    except requests.exceptions.RequestException as e4:
+        return jsonify({'message': 'A Requestexception occurred. Check your internet connection', 'size': [None, None], 'image': None, 'no of object': None,
+                        "dimensional data": None})
+
+
+    print("dimension_measurement_polygon() was accessed")
 
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     w = image.width
     h = image.height
-    opencv_image = generate_image_rectangle(opencv_image)
+    opencv_image, no_of_objects, dimension_list = generate_image_rectangle(opencv_image)
+
     return_value, image2str = cv2.imencode('.jpg', opencv_image)
-    print("function was accessed")
     image_encode = base64.b64encode(image2str).decode()
-    print(type(opencv_image))
-    print(type(image2str))
-    print(type(image_encode))
-    return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode})
+
+    if no_of_objects > 1:
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object':no_of_objects, "dimensional data":dimension_list})
+    else:
+        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object':no_of_objects, "dimensional data":None})
+
 
 
 @lets_measure_app.route('/object_measurement_circle', methods=['POST'])
 def dimension_measurement_circle():
+
     try:
         file = request.files['image']
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.Timeout as e1:
         return jsonify(
-            {'message': e, 'size': [None, None], 'image': None, 'no_of_circles': None, 'radius': None})
+            {'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None, 'no_of_circles': None,
+             'radius': None})
+    except requests.exceptions.ConnectionError as e2:
+        return jsonify(
+            {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None], 'image': None, 'no_of_circles': None,
+             'radius': None})
+    except requests.exceptions.HTTPError as e3:
+        return jsonify(
+            {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None], 'image': None, 'no_of_circles': None,
+             'radius': None})
+    except requests.exceptions.RequestException as e4:
+        return jsonify(
+            {'message': 'A Requestexception occurred. Check your internet connection', 'size': [None, None], 'image': None, 'no_of_circles': None,
+             'radius': None})
+
+
+
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     w = image.width
@@ -63,19 +98,16 @@ def dimension_measurement_circle():
     print("dimension_measurement_circle() was accessed")
 
     print(circle_detected)
-    if circle_detected == -1:
-        return jsonify(
-            {'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': -1, 'radius': None})
-    elif circle_detected == 0:
-        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
-                        'radius': None})
-    else:
+    if circle_detected >=1:
         radius = []
         for i in circle_x_y:
             radius.append(i[2])
         return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected,
                         'radius': radius})
+    else:
 
+        return jsonify(
+            {'message': 'success', 'size': [w, h], 'image': image_encode, 'no_of_circles': circle_detected, 'radius': None})
 
 @lets_measure_app.route('/colordetection', methods=['POST'])
 def color_detection():
@@ -83,29 +115,29 @@ def color_detection():
         file = request.files.get('image')
         request_data = request.form.to_dict()
     except requests.exceptions.Timeout as e1:
-        return jsonify({'msg': e1, 'angle_value': None})
+        return jsonify(
+            {'msg': 'Oops! it client-server connection timeout occurred.', 'color name': None, 'R-value': None, 'G-value': None, 'B-value': None})
     except requests.exceptions.ConnectionError as e2:
-        return jsonify({'msg': e2, 'angle_value': None})
+        return jsonify(
+            {'msg': 'There seems to be a connection error.  Check your internet connection', 'color name': None, 'R-value': None, 'G-value': None, 'B-value': None})
     except requests.exceptions.HTTPError as e3:
-        return jsonify({'msg': e3, 'angle_value': None})
+        return jsonify(
+            {'msg': 'Http Connection Error occurred.  Check your internet connection', 'color name': None, 'R-value': None, 'G-value': None, 'B-value': None})
     except requests.exceptions.RequestException as e4:
-        return jsonify({'msg': e4, 'angle_value': None})
+        return jsonify(
+            {'msg': 'A Requestexception occurred. Check your internet connection', 'color name': None, 'R-value': None, 'G-value': None, 'B-value': None})
 
-    # print(type(request_data))
     x = request_data['x-coord']
     y = request_data['y-coord']
-    # print(x)
-    # print(y)
+
     x_value = int(x)
     y_value = int(y)
-    # print(type(x_value))
-    # print(type(y_value))
+
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
     B, G, R = opencv_image[x_value, y_value]
     color_name = get_color_name(R, G, B)
-    # print(type(B))
-    # print(B)
+
     return jsonify(
         {'msg': 'success', 'color name': color_name, 'R-value': int(R), 'G-value': int(G), 'B-value': int(B)})
 
@@ -116,13 +148,13 @@ def angle_estimation():
     try:
         request_data = request.form.to_dict()
     except requests.exceptions.Timeout as e1:
-        return jsonify({'msg': e1, 'angle_value': None})
+        return jsonify({'msg': "Oops. Connection Timeout occurred. Check your internet connection", 'angle_value': None})
     except requests.exceptions.ConnectionError as e2:
-        return jsonify({'msg': e2, 'angle_value': None})
+        return jsonify({'msg': "Connection Error occurred. Check your internet connection", 'angle_value': None})
     except requests.exceptions.HTTPError as e3:
-        return jsonify({'msg': e3, 'angle_value': None})
+        return jsonify({'msg': "Http Error occurred. Check your internet connection", 'angle_value': None})
     except requests.exceptions.RequestException as e4:
-        return jsonify({'msg': e4, 'angle_value': None})
+        return jsonify({'msg': "Request Exception occurred. make sure you followed all the steps correctly", 'angle_value': None})
 
     x1 = int(request_data['x1-coord'])
     y1 = int(request_data['y1-coord'])
@@ -134,19 +166,34 @@ def angle_estimation():
     pointsList.append([x1, y1])
     pointsList.append([x2, y2])
     pointsList.append([x3, y3])
+    print(x1, "," ,y1)
+    print(x2, ",", y2)
+    print(x3, ",", y3)
 
     if len(pointsList) == 3:
         angle_value = getAngle(pointsList)
+        print("value calculated")
         return jsonify({'msg': 'success', 'angle_value': int(angle_value)})
-    return jsonify({'msg': 'did not receive provide 3 coordinate value for angle estimation', 'angle_value': None})
+    else:
+        return jsonify({'msg': "Required 3 coordinates wasn't found in parameter list", 'angle_value': None})
 
 
 @lets_measure_app.route('/area_estimation_polygon', methods=['POST'])
 def area_estimation_polygon():
     try:
         file = request.files['image']
-    except requests.exceptions.RequestException as e:
-        return jsonify({'msg': e, 'size': [None, None], 'image': None})
+    except requests.exceptions.Timeout as e1:
+        return jsonify({'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None, 'no of object': None,
+                        'area-polygon': None})
+    except requests.exceptions.ConnectionError as e2:
+        return jsonify({'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None], 'image': None, 'no of object': None,
+                        'area-polygon': None})
+    except requests.exceptions.HTTPError as e3:
+        return jsonify({'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None], 'image': None, 'no of object': None,
+                        'area-polygon': None})
+    except requests.exceptions.RequestException as e4:
+        return jsonify({'message': 'A Requestexception occurred. Check your internet connection', 'size': [None, None], 'image': None, 'no of object': None,
+                        'area-polygon': None})
 
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
@@ -169,8 +216,18 @@ def area_estimation_polygon():
 def area_estimation_circle():
     try:
         file = request.files['image']
-    except requests.exceptions.RequestException as e:
-        return jsonify({'msg': e, 'size': [None, None], 'image': None})
+    except requests.exceptions.Timeout as e1:
+        return jsonify({'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None, 'no_of_circles': None,
+                        'Area-circle': None})
+    except requests.exceptions.ConnectionError as e2:
+        return jsonify({'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None], 'image': None, 'no_of_circles': None,
+                        'Area-circle': None})
+    except requests.exceptions.HTTPError as e3:
+        return jsonify({'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None], 'image': None, 'no_of_circles': None,
+                        'Area-circle': None})
+    except requests.exceptions.RequestException as e4:
+        return jsonify({'message': 'A Requestexception occurred. Check your internet connection', 'size': [None, None], 'image': None, 'no_of_circles': None,
+                        'Area-circle': None})
 
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
