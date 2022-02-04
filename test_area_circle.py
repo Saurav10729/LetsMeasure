@@ -6,19 +6,20 @@ import json
 
 url = "http://127.0.0.1:5000/area_estimation_circle"
 
-my_img = {'image': open('Testimages/aruco_with_coaster.jpg', 'rb')}
+my_img = {'image': open('Testimages/aruco_with_cap.jpg', 'rb')}
 
 r = requests.post(url, files=my_img)
 if r.ok:
     print("response received")
 js = r.json()
 
-if js['no_of_circles'] == -1:
+if js['no of object'] == -1:
     print("No aruco")
-elif js['no_of_circles'] == 0:
+elif js['no of object'] == 0:
     print("no circles detected")
 else:
-    area_list = js['Area-circle']
+    area_list = js['area-circle']
+    perimeter_list = js ['perimeter-circle']
     print(area_list)
     image_return = js['image']
     print(type(image_return))

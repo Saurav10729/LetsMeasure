@@ -6,7 +6,7 @@ import json
 
 url = "http://127.0.0.1:5000/object_measurement_rectangle"
 
-my_img = {'image': open('Testimages/aruco with hex2.png', 'rb')}
+my_img = {'image': open('Testimages/phone_with_aruco4.jpg', 'rb')}
 
 r = requests.post(url, files=my_img)
 if r.ok:

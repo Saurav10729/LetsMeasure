@@ -7,6 +7,15 @@ import math
 parameters = cv2.aruco.DetectorParameters_create()
 aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_50)
 
+def perimeter_approx_poly(approx):
+    points = np.array(approx).reshape(-1, 1, 2)
+    perimeter =0
+    for pt in zip(points, np.roll(points, -1, 0)):
+        x = pt[0][0]
+        y = pt[1][0]
+        d = math.sqrt((x[1] - y[1]) * (x[1] - y[1]) + (x[0] - y[0]) * (x[0] - y[0]))
+        perimeter += d
+    return perimeter
 
 def image_preprocessing(opencv_image):
     image_blur = cv2.GaussianBlur(opencv_image, (7, 7), 1)
@@ -17,7 +26,8 @@ def image_preprocessing(opencv_image):
 
 
 def area_polygon(opencv_image, image_canny):
-    area_list = []
+    area_list = list()
+    perimeter_list = list()
     kernel = np.ones((5, 5))
     dilated_image = cv2.dilate(image_canny, kernel, iterations=1)
     no_of_objects = 0
@@ -25,48 +35,49 @@ def area_polygon(opencv_image, image_canny):
     if corners:
         int_corners = np.int0(corners)
         cv2.polylines(opencv_image, int_corners, True, (0, 255, 0), 5)
-
         aruco_area = cv2.contourArea(corners[0])
-
-        area_conversion_ratio = 2304 / aruco_area
+        pixel_cm_ratio = cv2.arcLength(corners[0],True) / 18.8
+        area_conversion_ratio = aruco_area/2209
         print("area conversion ratio:", area_conversion_ratio)
         contours, _ = cv2.findContours(dilated_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         # area_in_cm2 = 0
 
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            area_in_mm2 = area_conversion_ratio * area
+            area_in_mm2 = area/area_conversion_ratio
             area_in_cm2 = area_in_mm2 / 100
             area_in_cm2 = round(area_in_cm2, 2)
 
             if area > 20000:  # to remove noise contours
                 no_of_objects += 1
                 cv2.drawContours(opencv_image, cnt, -1, (0, 255, 0), 25)
-                perimeter = cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, .04 * perimeter, True)
-                print(len(approx))
+                approx = cv2.approxPolyDP(cnt, .04 * cv2.arcLength(cnt, True), True)
+                perimeter_val = perimeter_approx_poly(approx)
+                perimeter_in_cm = round(perimeter_val/pixel_cm_ratio, 2)
                 x, y, w, h = cv2.boundingRect(approx)
-                # cv2.rectangle(opencv_image,(x,y),(x+w,y+h), (0, 255, 0), 5)
                 area_list.append(area_in_cm2)
+                perimeter_list.append(perimeter_in_cm)
                 cv2.circle(opencv_image, (int(x + w // 2), int(y + h // 2)), 5, (0, 0, 255), -1)
                 cv2.putText(opencv_image, "No.of Points detected:" + str(len(approx)),
-                            (int(x + w // 3), int(y + h // 2)), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0), 3)
-                cv2.putText(opencv_image, "Area {} sqr.cm".format(area_in_cm2, 1),
-                            (int(x + w // 3), int(y + h // 2 + 60)), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0), 3)
+                            ((x + w // 3), (y + h // 2)), cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,0),5)
+                cv2.putText(opencv_image, "Area: {} sqr.cm".format(area_in_cm2, 1),
+                            ((x + w // 3), (y + h // 2 + 60)), cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,0),5)
+                cv2.putText(opencv_image, "Perimeter: {}cm".format(perimeter_in_cm, 1),
+                            (x + w // 3, y + h // 2 + 120), cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,0),5)
         # (x + w + 20, y + 30)(x+w+20,y+45)
         cv2.imshow("image", opencv_image)
         if no_of_objects > 1:
-            return opencv_image, no_of_objects, area_list
+            return opencv_image, no_of_objects, area_list, perimeter_list
         else:
-            return opencv_image, 0, None
+            return opencv_image, 0, None, None
     else:
-        return opencv_image, -1, None
+        return opencv_image, -1, None, None
 
 
 def area_circle(opencv_image, image_canny):
     image_copy = opencv_image.copy()
-    circle_x_y = [[0, 0, 0, 0]]
-
+    circle_x_y = list()
+    no_of_circle =0
     corners, _, _ = cv2.aruco.detectMarkers(opencv_image, aruco_dict, parameters=parameters)
     if corners:
         int_corners = np.int0(corners)
@@ -74,12 +85,10 @@ def area_circle(opencv_image, image_canny):
         aruco_area = cv2.contourArea(corners[0])
         aruco_perimeter = cv2.arcLength(corners[0], True)
 
-        pixel_cm_ratio = aruco_perimeter / 19.2
-        area_conversion_ratio = 2304 / aruco_area
+        pixel_cm_ratio = aruco_perimeter / 18.8
         print("pixel_cm_ratio: ", pixel_cm_ratio)
-        print("area conversion ratio: ", area_conversion_ratio)
 
-        radii = np.arange(0, 1000, 10)
+        radii = np.arange(400, 1000, 10)
 
         for idx in range(len(radii) - 1):
             minRadius = radii[idx] + 1
@@ -98,7 +107,8 @@ def area_circle(opencv_image, image_canny):
 
                 if radius > 0.5:
                     area = (355 / 113) * radius * radius
-                    circle_data = [i[0], i[1], round(radius, 2), area]
+                    circumference = 2 * (355 / 113) * radius
+                    circle_data = [i[0], i[1], round(radius, 2), area, circumference]
 
                     for j in circle_x_y:
                         x_range = range(j[0] - 50, j[0] + 50, 1)
@@ -109,19 +119,20 @@ def area_circle(opencv_image, image_canny):
                             flag = 'true'
 
                     if flag == 'true':
+                        no_of_circle +=1
                         circle_x_y.append(circle_data)
                         cv2.circle(image_copy, (i[0], i[1]), i[2], (0, 255, 0), 25)
                         cv2.circle(image_copy, (i[0], i[1]), 2, (0, 0, 255), 3)
                         cv2.putText(image_copy, "Radius: " + str(round(radius, 2)) + ' cm', (i[0] - 70, i[1]),
-                                    cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0), 3)
-                        cv2.putText(image_copy, "Area: " + str(round(area, 2)) + ' cm', (i[0] - 70, i[1] + 50),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 0), 3)
+                                    cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,0),5)
+                        cv2.putText(image_copy, "Area: " + str(round(area, 2)) + 'sqr.cm', (i[0] - 70, i[1] + 60),
+                                    cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,0),5)
+                        cv2.putText(image_copy, "Circumference: " + str(round(circumference, 2)) + 'cm', (i[0] - 70, i[1] + 120),
+                                    cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,0),5)
 
                     print(circle_x_y)
 
-        if len(circle_x_y) > 1:
-            no_of_circle = len(circle_x_y) - 1
-            circle_x_y.pop(0)
+        if len(circle_x_y) > 0:
             for i in circle_x_y:
                 print(i)  # printing circles after popping [0,0,0,0] item from circle_x_y
             return image_copy, no_of_circle, circle_x_y
@@ -132,5 +143,5 @@ def area_circle(opencv_image, image_canny):
         return image_copy, -1, None
 
 
-def area_irregular():
+def area_irregular(opencv_image, canny_image):
     print("area of irregular object function")
