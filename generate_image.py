@@ -33,9 +33,9 @@ def give_edge_numbering(approx,opencv_image,length_in_cm):
         print(x[0],",",x[1])
         print(y[0],",",y[1])
         print("mid point: ",midX,", ",midY)
-        cv2.putText(opencv_image,str(length_in_cm[numbering])+" cm", (midX,midY),cv2.FONT_HERSHEY_SIMPLEX,3,(255,255,0),4 )
-        cv2.circle(opencv_image, (x[0], x[1]), 7, (0 , 0, 255), -1)
-        cv2.circle(opencv_image, (y[0], y[1]), 7, (0, 0, 255), -1)
+        cv2.putText(opencv_image,str(length_in_cm[numbering])+"cm", (midX,midY),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,0),5,2)
+        cv2.circle(opencv_image, (x[0], x[1]), 15, (0 , 0, 255), -1)
+        cv2.circle(opencv_image, (y[0], y[1]), 15, (0, 0, 255), -1)
         numbering += 1
 
     return opencv_image
@@ -51,10 +51,10 @@ def generate_image_rectangle(opencv_image):
         int_corners = np.int0(corners)
             # cv2.polylines(opencv_image, int_corners, True, (0, 255, 0), 5)
         aruco_perimeter = cv2.arcLength(corners[0], True)
-        pixel_cm_ratio = aruco_perimeter / 18.4
+        pixel_cm_ratio = aruco_perimeter / 18.8
         aruco_area = cv2.contourArea(corners[0])
         print("area of aruco:",aruco_area)
-        area_conversion_ratio = 2304 / aruco_area
+        area_conversion_ratio = aruco_area/2209
 
         contours = detector.detect_objects(opencv_image)
         for cnt in contours:
@@ -65,9 +65,10 @@ def generate_image_rectangle(opencv_image):
                 #trying to determine shape of polygon and extract and measure edge
 
                 shape_of_object = cv2.approxPolyDP(cnt, 0.04 * cv2.arcLength(cnt, True), True)
+                print(shape_of_object)
                 length = extract_edge_values(shape_of_object)
                 for i in length:
-                    length_in_cm.append( round(i / pixel_cm_ratio,1))
+                    length_in_cm.append( round(i / pixel_cm_ratio,2))
 
                 length_in_cm.pop(0)
                 print(length_in_cm)
@@ -75,14 +76,14 @@ def generate_image_rectangle(opencv_image):
                 if len(shape_of_object) == 3:
                     shape = "triangle"
                 elif len(shape_of_object) == 4:
-                    diff = cv2.contourArea(cnt) - aruco_area
-                    print("difference in area:",diff)
+                    diff = abs(cv2.contourArea(cnt) - aruco_area)
+                    print("difference in area:",diff/area_conversion_ratio)
                     r = cv2.minAreaRect(cnt)
                     (x, y), (w, h), angle = r
                     ar = w/h
                     # if aspect ratio is close to 1 and area is close to area of aruco then, its aruco
-                    if 0.95<ar<1.05 and -4000<cv2.contourArea(cnt)-aruco_area<4000:
-                        shape = "ArUco"
+                    if 0.95<ar<1.05 and 0 < diff / area_conversion_ratio < 60:
+                        shape = "" #aruco
                         dimension_list.append([no_of_objects, shape, length_in_cm])
                     # if aspect ratio close to 1, its square
                     elif 0.95<ar<1.05:
@@ -101,7 +102,7 @@ def generate_image_rectangle(opencv_image):
                     shape = "pentagon"
                     dimension_list.append([no_of_objects, shape, length_in_cm])
                 elif 5<len(shape_of_object)<8:
-                    shape = "polygon with "+str(len(shape_of_object))+" points"
+                    shape = str(len(shape_of_object))+" point polygon"
                     dimension_list.append([no_of_objects, shape, length_in_cm])
                 else:
                     shape = "not polygon"
@@ -113,9 +114,9 @@ def generate_image_rectangle(opencv_image):
                 M = cv2.moments(cnt)
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                cv2.circle(opencv_image, (cX, cY), 7, (255, 255, 255), -1)
-                cv2.putText(opencv_image, shape, (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 255), 4)
-                cv2.drawContours(opencv_image, cnt, -1, (0, 255, 0), 25)
+                cv2.circle(opencv_image, (cX, cY), 7, (0, 0, 255), -1)
+                cv2.putText(opencv_image, shape, (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,0),5,2)
+                cv2.drawContours(opencv_image, cnt, -1, (0, 255, 0), 10)
                 opencv_image = give_edge_numbering(approx=shape_of_object, opencv_image=opencv_image,length_in_cm=length_in_cm)
                 length_in_cm.clear()
         if no_of_objects > 1:
@@ -130,11 +131,19 @@ def generate_image_rectangle(opencv_image):
 def generate_image_circle(opencv_image):
     image_copy = opencv_image.copy()
     corners, _, _ = cv2.aruco.detectMarkers(opencv_image, aruco_dict, parameters=parameters)
+    length_in_cm = list()
     if corners:
         int_corners = np.int0(corners)
         cv2.polylines(image_copy, int_corners, True, (0, 255, 0), 5)
         aruco_perimeter = cv2.arcLength(corners[0], True)
-        pixel_cm_ratio = aruco_perimeter / 18.4
+        pixel_cm_ratio = aruco_perimeter / 18.8
+        print(int_corners[0])
+        length = extract_edge_values(int_corners[0])
+        for i in length:
+            length_in_cm.append(round(i / pixel_cm_ratio, 1))
+        length_in_cm.pop(0)
+        print(length_in_cm)
+        give_edge_numbering(int_corners[0],image_copy,length_in_cm)
 
         blur_image = cv2.GaussianBlur(opencv_image, (7, 7), 1)
         gray_image = cv2.cvtColor(blur_image, cv2.COLOR_BGR2GRAY)
@@ -173,11 +182,11 @@ def generate_image_circle(opencv_image):
                     if flag == 'true':
                         circle_x_y.append(circle_data)
                         cv2.circle(image_copy, (i[0], i[1]), i[2], (0, 255, 0), 25)
-                        cv2.circle(image_copy, (i[0], i[1]), 2, (0, 0, 255), 3)
+                        cv2.circle(image_copy, (i[0], i[1]), 15, (0, 0, 255), -1)
                         cv2.putText(image_copy, "Radius: " + str(round(radius, 2)) + ' cm', (i[0] - 70, i[1]),
-                                    cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0), 3)
+                                    cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,0),5)
                         cv2.putText(image_copy, "Diameter: " + str(round(diameter, 2)) + ' cm', (i[0] - 70, i[1] + 50),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 0), 3)
+                                    cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,0),5)
 
                     count = count + 1
                     print(circle_x_y)
