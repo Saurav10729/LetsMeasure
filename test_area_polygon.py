@@ -24,7 +24,7 @@ else:
     print(type(image_return))
     im_data = base64.b64decode(image_return)
     print(type(im_data))
-    with open('resultofarea.jpg', 'wb') as file:
+    with open('result_area_polygon.jpg', 'wb') as file:
         file.write(im_data)
     print("file saved")
 

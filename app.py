@@ -228,24 +228,24 @@ def area_perimeter_estimation_polygon():
 
 
 @lets_measure_app.route('/area_estimation_circle', methods=['POST'])
-def area_estimation_circle():
+def area_circumference_estimation_circle():
     try:
         file = request.files['image']
     except requests.exceptions.Timeout:
         return jsonify(
             {'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None,
-             'no of object': None, 'area-circle': None,'perimeter-circle': None})
+             'no of object': None, 'area-circle': None, 'perimeter-circle': None})
     except requests.exceptions.ConnectionError:
         return jsonify(
             {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None],
-             'image': None, 'no of object': None, 'area-circle': None,'perimeter-circle': None})
+             'image': None, 'no of object': None, 'area-circle': None, 'perimeter-circle': None})
     except requests.exceptions.HTTPError:
         return jsonify(
             {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None],
-             'image': None, 'no of object': None, 'area-circle': None,'perimeter-circle': None})
+             'image': None, 'no of object': None, 'area-circle': None, 'perimeter-circle': None})
     except requests.exceptions.RequestException:
-        return jsonify({'message': 'A Requestexception occurred. Check your internet connection', 'size': [None, None],
-                        'image': None, 'no of object': None, 'area-circle': None,'perimeter-circle': None})
+        return jsonify({'message': 'A RequestException occurred. Check your internet connection', 'size': [None, None],
+                        'image': None, 'no of object': None, 'area-circle': None, 'perimeter-circle': None})
 
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
@@ -262,12 +262,13 @@ def area_estimation_circle():
         perimeter_list = []
         for i in circle_x_y_area:
             area_list.append(i[3])
-            perimeter_list.append (i[4])
+            perimeter_list.append(i[4])
         return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object': no_of_object,
                         'area-circle': area_list, 'perimeter-circle': perimeter_list})
     else:
         return jsonify({'message': 'success', 'size': [w, h], 'image': None, 'no of object': no_of_object,
                         'area-circle': None, 'perimeter-circle': None})
+
 
 @lets_measure_app.route('/area_estimation_irregular', methods=['POST'])
 def area_perimeter_estimation_irregular():
@@ -276,34 +277,34 @@ def area_perimeter_estimation_irregular():
     except requests.exceptions.Timeout:
         return jsonify(
             {'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None,
-             'no of object': None, 'area-irregular': None,'perimeter-irregular': None})
+             'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
     except requests.exceptions.ConnectionError:
         return jsonify(
             {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None],
-             'image': None, 'no of object': None, 'area-irregular': None,'perimeter-irregular': None})
+             'image': None, 'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
     except requests.exceptions.HTTPError:
         return jsonify(
-            {'message': 'Http Connection Error occurred.  Check your internet connection','size': [None, None],
-             'image': None, 'no of object': None, 'area-irregular': None,'perimeter-irregular': None})
+            {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None],
+             'image': None, 'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
     except requests.exceptions.RequestException:
         return jsonify(
-            {'message': 'A Requestexception occurred. Check your internet connection', 'size': [None, None],
-            'image': None,'no of object': None, 'area-irregular': None,'perimeter-irregular': None})
+            {'message': 'A RequestException occurred. Check your internet connection', 'size': [None, None],
+             'image': None, 'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
 
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
-    w = image.width
-    h = image.height
     image_canny = image_preprocessing(opencv_image)
     result_image, no_of_object, area_list, perimeter_list = area_irregular(opencv_image, image_canny)
     return_value, image2str = cv2.imencode('.jpg', result_image)
     print("area_estimation_polygon was accessed")
     image_encode = base64.b64encode(image2str).decode()
     if no_of_object > 1:
-        return jsonify({'message': 'success','size': [None, None],'image': image_encode,'no of object': no_of_object,
-                        'area-irregular': area_list,'perimeter-irregular': perimeter_list})
+        return jsonify({'message': 'success', 'size': [None, None], 'image': image_encode, 'no of object': no_of_object,
+                        'area-irregular': area_list, 'perimeter-irregular': perimeter_list})
     else:
-        return jsonify({'message': 'success','size': [None, None],'image': None,'no of object': None,
-                        'area-irregular': None,'perimeter-irregular': None})
+        return jsonify({'message': 'success', 'size': [None, None], 'image': None, 'no of object': None,
+                        'area-irregular': None, 'perimeter-irregular': None})
+
+
 if __name__ == "__main__":
     lets_measure_app.run(debug=True)
