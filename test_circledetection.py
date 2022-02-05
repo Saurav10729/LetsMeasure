@@ -25,5 +25,5 @@ else:
         count += 1
     print(type(im_data))
 
-    with open('circleresult.jpg', 'wb') as file:
+    with open('result_dimension_circle.jpg', 'wb') as file:
         file.write(im_data)

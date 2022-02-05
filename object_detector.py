@@ -6,7 +6,8 @@ class HomogeneousBgDetector:
     def __init__(self):
         pass
 
-    def detect_objects(self, frame):
+    @staticmethod
+    def detect_objects(frame):
         # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         # mask = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 19, 5)
         image_blur = cv2.GaussianBlur(frame, (7, 7), 1)
