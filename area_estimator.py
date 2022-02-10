@@ -122,6 +122,8 @@ def area_polygon(opencv_image, image_canny):
         cv2.imshow("image", opencv_image)
         if no_of_objects > 1:
             return opencv_image, no_of_objects, area_list, perimeter_list
+        elif no_of_objects == 1:
+            return opencv_image, no_of_objects, None, None
         else:
             return opencv_image, 0, None, None
     else:
@@ -214,13 +216,13 @@ def area_irregular(opencv_image, image_canny):
         contours, _ = cv2.findContours(dilated_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         # area_in_cm2 = 0
 
-        for cnt in contours:
+        for cnt in contours: #each cnt represents a object present in the image
             area = cv2.contourArea(cnt)
             area_in_mm2 = area / area_conversion_ratio
             area_in_cm2 = area_in_mm2 / 100
             area_in_cm2 = round(area_in_cm2, 2)
 
-            if area > 20000:  # to remove noise contours
+            if area > 20000:  # object with area of less than 20000 pixels are treated as noise
                 no_of_objects += 1
                 cv2.drawContours(opencv_image, cnt, -1, (0, 255, 0), 25)
                 approx = cv2.approxPolyDP(cnt, .04 * cv2.arcLength(cnt, True), True)
@@ -240,6 +242,8 @@ def area_irregular(opencv_image, image_canny):
         cv2.imshow("image", opencv_image)
         if no_of_objects > 1:
             return opencv_image, no_of_objects, area_list, perimeter_list
+        elif no_of_objects ==1:
+            return opencv_image, no_of_objects, None,None
         else:
             return opencv_image, 0, None, None
     else:

@@ -31,9 +31,9 @@ def give_edge_numbering(approx, opencv_image, length_in_cm):
         y = pt[1][0]
 
         midX, midY = int((x[0] + y[0]) / 2), int((x[1] + y[1]) / 2)
-        print(x[0], ",", x[1])
-        print(y[0], ",", y[1])
-        print("mid point: ", midX, ", ", midY)
+        # print(x[0], ",", x[1])
+        # print(y[0], ",", y[1])
+        # print("mid point: ", midX, ", ", midY)
         cv2.putText(opencv_image, str(length_in_cm[numbering]) + "cm", (midX, midY), cv2.FONT_HERSHEY_SIMPLEX, 2,
                     (255, 255, 0), 5, 2)
         cv2.circle(opencv_image, (x[0], x[1]), 15, (0, 0, 255), -1)
@@ -50,8 +50,6 @@ def generate_image_rectangle(opencv_image):
     corners, _, _ = cv2.aruco.detectMarkers(opencv_image, aruco_dict, parameters=parameters)
 
     if corners:
-        # int_corners = np.int0(corners)
-        # # cv2.polylines(opencv_image, int_corners, True, (0, 255, 0), 5)
         aruco_perimeter = cv2.arcLength(corners[0], True)
         pixel_cm_ratio = aruco_perimeter / 18.8
         aruco_area = cv2.contourArea(corners[0])
@@ -94,11 +92,13 @@ def generate_image_rectangle(opencv_image):
                     # if opposite sides are equal then its rectangle
                     elif 0.95 < length_in_cm[0] / length_in_cm[2] < 1.05 and \
                             0.95 < length_in_cm[1] / length_in_cm[3] < 1.05:
-                        shape = "Rectangle"
+                        # if division of opposite sides is close to 1 then, they are approximately equal
+                        # if both sides satisfy this condition, it is a rectangle
+                        shape = "Quadrilateral"
                         dimension_list.append([no_of_objects, shape, length_in_cm])
                     # if none of the condition satisfy its irregular quadrilateral
                     else:
-                        shape = "Quadrilateral"
+                        shape = "Irregular-Quad"
                         dimension_list.append([no_of_objects, shape, length_in_cm])
                 # if no. of sides equals 5 its, pentagon
                 elif len(shape_of_object) == 5:
@@ -110,8 +110,8 @@ def generate_image_rectangle(opencv_image):
                 else:
                     shape = "not polygon"
                 # print(dimension_list)
-                print(shape)
-                print("----------------")
+                # print(shape)
+
 
                 M = cv2.moments(cnt)
                 cX = int(M["m10"] / M["m00"])
@@ -122,10 +122,11 @@ def generate_image_rectangle(opencv_image):
                 opencv_image = give_edge_numbering(approx=shape_of_object, opencv_image=opencv_image,
                                                    length_in_cm=length_in_cm)
                 length_in_cm.clear()
+        print("no object: ",no_of_objects)
         if no_of_objects > 1:
             return opencv_image, no_of_objects, dimension_list
-        else:
-            return opencv_image, 0, None
+        elif no_of_objects == 1:
+            return opencv_image, no_of_objects, None
     else:
         return opencv_image, -1, None
 
@@ -154,7 +155,7 @@ def generate_image_circle(opencv_image):
         gray_image = cv2.cvtColor(blur_image, cv2.COLOR_BGR2GRAY)
         image_canny = cv2.Canny(gray_image, 23, 25)
 
-        radii = np.arange(400, 1000, 10)
+        radii = np.arange(100, 800, 10)
 
         for idx in range(len(radii) - 1):
 
@@ -167,7 +168,6 @@ def generate_image_circle(opencv_image):
             if circles is None:
                 continue
             circles = np.uint16(np.around(circles))
-            count = 1
             flag = 'true'
             for i in circles[0, :]:
                 radius = i[2] / pixel_cm_ratio
@@ -193,7 +193,6 @@ def generate_image_circle(opencv_image):
                         cv2.putText(image_copy, "Diameter: " + str(round(diameter, 2)) + ' cm', (i[0] - 70, i[1] + 50),
                                     cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 0), 5)
 
-                    count = count + 1
                     print(circle_x_y)
 
         if len(circle_x_y) > 0:
