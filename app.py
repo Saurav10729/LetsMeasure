@@ -30,21 +30,19 @@ def dimension_measurement_polygon():
     try:
         file = request.files['image']
     except requests.exceptions.Timeout:
-        return jsonify({'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None],
+        return jsonify({'message': 'Oops! it client-server connection timeout occurred.',
                         'image': None, 'no of object': None, "dimensional data": None})
 
     except requests.exceptions.ConnectionError:
-        return jsonify(
-            {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None],
+        return jsonify({'message': 'There seems to be a connection error.  Check your internet connection',
              'image': None, 'no of object': None, "dimensional data": None})
 
     except requests.exceptions.HTTPError:
-        return jsonify(
-            {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None],
+        return jsonify({'message': 'Http Connection Error occurred.  Check your internet connection',
              'image': None, 'no of object': None, "dimensional data": None})
 
     except requests.exceptions.RequestException:
-        return jsonify({'message': 'A RequestException occurred. Check your internet connection', 'size': [None, None],
+        return jsonify({'message': 'A RequestException occurred. Check your internet connection',
                         'image': None, 'no of object': None, "dimensional data": None})
 
     print("dimension_measurement_polygon() was accessed")
@@ -57,14 +55,18 @@ def dimension_measurement_polygon():
 
     return_value, image2str = cv2.imencode('.jpg', opencv_image)
     image_encode = base64.b64encode(image2str).decode()
-
+    print("no of object",no_of_object)
     if no_of_object > 1:
-        return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object': no_of_object,
+        return jsonify({'message': 'success', 'image': image_encode, 'no of object': no_of_object,
                         "dimensional data": dimension_list})
-    else:
-        return jsonify({'message': 'success', 'size': [w, h], 'image': None, 'no of object': no_of_object,
-                        "dimensional data": None})
 
+    elif no_of_object == 1:
+        return jsonify({'message': 'Both ArUco and Object should be present', 'image': None, 'no of object': no_of_object,
+                        "dimensional data": None})
+    else:
+        return jsonify({'message': 'success', 'image': None,
+                        'no of object': no_of_object,
+                        "dimensional data": None})
 
 @lets_measure_app.route('/object_measurement_circle', methods=['POST'])
 def dimension_measurement_circle():
@@ -72,24 +74,23 @@ def dimension_measurement_circle():
         file = request.files['image']
     except requests.exceptions.Timeout:
         return jsonify(
-            {'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None,
+            {'message': 'Oops! it client-server connection timeout occurred.',   'image': None,
              'no of object': None,
              'radius': None})
     except requests.exceptions.ConnectionError:
         return jsonify(
-            {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None],
+            {'message': 'There seems to be a connection error.  Check your internet connection',
              'image': None, 'no of object': None,
              'radius': None})
     except requests.exceptions.HTTPError:
         return jsonify(
-            {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None],
+            {'message': 'Http Connection Error occurred.  Check your internet connection',
              'image': None, 'no of object': None,
              'radius': None})
     except requests.exceptions.RequestException:
         return jsonify(
-            {'message': 'A RequestException occurred. Check your internet connection', 'size': [None, None],
-             'image': None, 'no of object': None,
-             'radius': None})
+            {'message': 'A RequestException occurred. Check your internet connection',
+             'image': None, 'no of object': None,'radius': None})
 
     image = Image.open(file.stream)
     opencv_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
@@ -100,7 +101,7 @@ def dimension_measurement_circle():
     image_encode = base64.b64encode(image2str).decode()
     print("dimension_measurement_circle() was accessed")
 
-    print(no_of_object)
+    print("No of objects: ",no_of_object)
     if no_of_object >= 1:
         radius = []
         for i in circle_x_y:
@@ -108,9 +109,7 @@ def dimension_measurement_circle():
         return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object': no_of_object,
                         'radius': radius})
     else:
-
-        return jsonify(
-            {'message': 'success', 'size': [w, h], 'image': None, 'no of object': no_of_object,
+        return jsonify({'message': 'success', 'size': [w, h], 'image': None, 'no of object': no_of_object,
              'radius': None})
 
 
@@ -185,7 +184,7 @@ def angle_estimation():
     if len(pointsList) == 3:
         angle_value = getAngle(pointsList)
         print("value calculated")
-        return jsonify({'message': 'success', 'angle_value': int(angle_value)})
+        return jsonify({'message': 'success', 'angle_value': str(round(angle_value,0))})
     else:
         return jsonify({'message': "Required 3 coordinates wasn't found in parameter list", 'angle_value': None})
 
@@ -196,18 +195,18 @@ def area_perimeter_estimation_polygon():
         file = request.files['image']
     except requests.exceptions.Timeout:
         return jsonify(
-            {'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None,
+            {'message': 'Oops! it client-server connection timeout occurred.',   'image': None,
              'no of object': None, 'area-polygon': None, 'perimeter-polygon': None})
     except requests.exceptions.ConnectionError:
         return jsonify(
-            {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None],
+            {'message': 'There seems to be a connection error.  Check your internet connection',
              'image': None, 'no of object': None, 'area-polygon': None, 'perimeter-polygon': None})
     except requests.exceptions.HTTPError:
         return jsonify(
-            {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None],
+            {'message': 'Http Connection Error occurred.  Check your internet connection',
              'image': None, 'no of object': None, 'area-polygon': None, 'perimeter-polygon': None})
     except requests.exceptions.RequestException:
-        return jsonify({'message': 'A RequestException occurred. Check your internet connection', 'size': [None, None],
+        return jsonify({'message': 'A RequestException occurred. Check your internet connection',
                         'image': None, 'no of object': None, 'area-polygon': None, 'perimeter-polygon': None})
 
     image = Image.open(file.stream)
@@ -222,6 +221,10 @@ def area_perimeter_estimation_polygon():
     if no_of_object > 1:
         return jsonify({'message': 'success', 'size': [w, h], 'image': image_encode, 'no of object': no_of_object,
                         'area-polygon': area_list, 'perimeter-polygon': perimeter_list})
+    elif no_of_object == 1:
+        return jsonify({'message': 'Both ArUco and Object should be present', 'size': [w, h],
+                        'image': None, 'no of object': no_of_object,
+                        'area-polygon': None, 'perimeter-polygon': None})
     else:
         return jsonify({'message': 'success', 'size': [w, h], 'image': None, 'no of object': no_of_object,
                         'area-polygon': None, 'perimeter-polygon': None})
@@ -233,18 +236,18 @@ def area_circumference_estimation_circle():
         file = request.files['image']
     except requests.exceptions.Timeout:
         return jsonify(
-            {'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None,
+            {'message': 'Oops! it client-server connection timeout occurred.',   'image': None,
              'no of object': None, 'area-circle': None, 'perimeter-circle': None})
     except requests.exceptions.ConnectionError:
         return jsonify(
-            {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None],
+            {'message': 'There seems to be a connection error.  Check your internet connection',
              'image': None, 'no of object': None, 'area-circle': None, 'perimeter-circle': None})
     except requests.exceptions.HTTPError:
         return jsonify(
-            {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None],
+            {'message': 'Http Connection Error occurred.  Check your internet connection',
              'image': None, 'no of object': None, 'area-circle': None, 'perimeter-circle': None})
     except requests.exceptions.RequestException:
-        return jsonify({'message': 'A RequestException occurred. Check your internet connection', 'size': [None, None],
+        return jsonify({'message': 'A RequestException occurred. Check your internet connection',
                         'image': None, 'no of object': None, 'area-circle': None, 'perimeter-circle': None})
 
     image = Image.open(file.stream)
@@ -276,19 +279,19 @@ def area_perimeter_estimation_irregular():
         file = request.files['image']
     except requests.exceptions.Timeout:
         return jsonify(
-            {'message': 'Oops! it client-server connection timeout occurred.', 'size': [None, None], 'image': None,
+            {'message': 'Oops! it client-server connection timeout occurred.',   'image': None,
              'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
     except requests.exceptions.ConnectionError:
         return jsonify(
-            {'message': 'There seems to be a connection error.  Check your internet connection', 'size': [None, None],
+            {'message': 'There seems to be a connection error.  Check your internet connection',
              'image': None, 'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
     except requests.exceptions.HTTPError:
         return jsonify(
-            {'message': 'Http Connection Error occurred.  Check your internet connection', 'size': [None, None],
+            {'message': 'Http Connection Error occurred.  Check your internet connection',
              'image': None, 'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
     except requests.exceptions.RequestException:
         return jsonify(
-            {'message': 'A RequestException occurred. Check your internet connection', 'size': [None, None],
+            {'message': 'A RequestException occurred. Check your internet connection',
              'image': None, 'no of object': None, 'area-irregular': None, 'perimeter-irregular': None})
 
     image = Image.open(file.stream)
@@ -298,13 +301,15 @@ def area_perimeter_estimation_irregular():
     return_value, image2str = cv2.imencode('.jpg', result_image)
     print("area_estimation_polygon was accessed")
     image_encode = base64.b64encode(image2str).decode()
-    if no_of_object > 1:
-        return jsonify({'message': 'success', 'size': [None, None], 'image': image_encode, 'no of object': no_of_object,
+    if no_of_object > 1: #more than 2 object refers to 1 object and aruco
+        return jsonify({'message': 'success',   'image': image_encode, 'no of object': no_of_object,
                         'area-irregular': area_list, 'perimeter-irregular': perimeter_list})
-    else:
-        return jsonify({'message': 'success', 'size': [None, None], 'image': None, 'no of object': None,
+    elif no_of_object == 1:
+        return jsonify({'message': 'ArUco and object should be present!', 'image': None, 'no of object': no_of_object,
                         'area-irregular': None, 'perimeter-irregular': None})
-
+    else:
+        return jsonify({'message': 'success',   'image': None, 'no of object': no_of_object,
+                        'area-irregular': None, 'perimeter-irregular': None})
 
 if __name__ == "__main__":
     lets_measure_app.run(debug=True)

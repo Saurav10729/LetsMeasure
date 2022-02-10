@@ -10,7 +10,7 @@ x1, x2, x3 = 30, 10, 10
 y1, y2, y3 = 10, 10, 28
 
 data_value = {
-    'msge': 'sent',
+    'message': 'sent',
     'x1-coord': str(x1),
     'y1-coord': str(y1),
     'x2-coord': str(x2),
@@ -24,7 +24,7 @@ if r.ok:
     print("request sent")
     print(r.json())
 js = r.json()
-if js['msg'] == "did not receive provide 3 coordinate value for angle estimation":
+if js['message'] == "did not receive provide 3 coordinate value for angle estimation":
     print("Oops, it seems that you did not provide 3 coordinates")
 else:
     angle = js['angle_value']

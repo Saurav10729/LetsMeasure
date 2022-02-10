@@ -8,7 +8,7 @@ my_img = {'image': open('Testimages/laptopwitharuco.jpg', 'rb')}
 x = 100
 y = 121
 data_value = {
-    'msge': 'sent',
+    'message': 'sent',
     'x-coord': str(x),
     'y-coord': str(y)
 }
