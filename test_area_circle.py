@@ -6,7 +6,7 @@ import json
 
 url = "http://127.0.0.1:5000/area_estimation_circle"
 
-my_img = {'image': open('Testimages/aruco_with_cap.jpg', 'rb')}
+my_img = {'image': open('Testimages/aruco_with_circle_highres.jpg', 'rb')}
 
 r = requests.post(url, files=my_img)
 if r.ok:

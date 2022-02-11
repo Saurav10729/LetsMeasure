@@ -155,7 +155,7 @@ def generate_image_circle(opencv_image):
         gray_image = cv2.cvtColor(blur_image, cv2.COLOR_BGR2GRAY)
         image_canny = cv2.Canny(gray_image, 23, 25)
 
-        radii = np.arange(100, 800, 10)
+        radii = np.arange(100, 1000, 10)
 
         for idx in range(len(radii) - 1):
 
