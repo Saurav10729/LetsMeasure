@@ -5,7 +5,7 @@ global cname
 clicked = False
 r = g = b = x_pos = y_pos = 0
 index = ['color', 'color_name', 'hex', 'R', 'G', 'B']
-df = pd.read_csv(csv_path, names=index, header=None)
+# df = pd.read_csv(csv_path, names=index, header=None)
 
 
 def get_color_name(R, G, B):

@@ -4,7 +4,7 @@ import pickle
 import base64
 import json
 
-url = "http://127.0.0.1:5000/area_estimation_polygon"
+url = "http://sauravad.pythonanywhere.com/area_estimation_polygon"
 
 my_img = {'image': open('Testimages/phone_with_aruco4.jpg', 'rb')}
 
