@@ -7,7 +7,11 @@ from flask import jsonify
 
 url = " http://127.0.0.1:5000/object_measurement_circle"
 
+<<<<<<< HEAD
 my_img = {'image': open('Testimages/aruco_with_circle_highres.jpg', 'rb')}
+=======
+my_img = {'image': open('Testimages/aruco_only3.jpg', 'rb')}
+>>>>>>> 21c3336a0a9d5866f9362d11f0c6ec80cdc11b72
 r = requests.post(url, files=my_img)
 js = r.json()
 print("CLIENT >>>")
