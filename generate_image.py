@@ -111,8 +111,6 @@ def generate_image_rectangle(opencv_image):
                     shape = "not polygon"
                 # print(dimension_list)
                 # print(shape)
-
-
                 M = cv2.moments(cnt)
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
@@ -122,7 +120,7 @@ def generate_image_rectangle(opencv_image):
                 opencv_image = give_edge_numbering(approx=shape_of_object, opencv_image=opencv_image,
                                                    length_in_cm=length_in_cm)
                 length_in_cm.clear()
-        print("no object: ",no_of_objects)
+        print("no object: ", no_of_objects)
         if no_of_objects > 1:
             return opencv_image, no_of_objects, dimension_list
         elif no_of_objects == 1:
@@ -155,11 +153,7 @@ def generate_image_circle(opencv_image):
         gray_image = cv2.cvtColor(blur_image, cv2.COLOR_BGR2GRAY)
         image_canny = cv2.Canny(gray_image, 23, 25)
 
-<<<<<<< HEAD
-        radii = np.arange(100, 1000, 10)
-=======
         radii = np.arange(100, 800, 10)
->>>>>>> 21c3336a0a9d5866f9362d11f0c6ec80cdc11b72
 
         for idx in range(len(radii) - 1):
 

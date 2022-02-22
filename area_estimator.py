@@ -142,12 +142,9 @@ def area_circle(opencv_image, image_canny):
 
         pixel_cm_ratio = aruco_perimeter / 18.8
         print("pixel_cm_ratio: ", pixel_cm_ratio)
-
-<<<<<<< HEAD
         radii = np.arange(100, 1500, 10)
-=======
         radii = np.arange(400, 1000, 10)
->>>>>>> 21c3336a0a9d5866f9362d11f0c6ec80cdc11b72
+
 
         for idx in range(len(radii) - 1):
             minRadius = radii[idx] + 1
@@ -181,11 +178,9 @@ def area_circle(opencv_image, image_canny):
                         no_of_circle += 1
                         circle_x_y.append(circle_data)
                         cv2.circle(image_copy, (i[0], i[1]), i[2], (0, 255, 0), 25)
-<<<<<<< HEAD
                         cv2.circle(image_copy, (i[0], i[1]), 5, (0, 0, 255), -1)
-=======
                         cv2.circle(image_copy, (i[0], i[1]), 2, (0, 0, 255), 3)
->>>>>>> 21c3336a0a9d5866f9362d11f0c6ec80cdc11b72
+
                         cv2.putText(image_copy, "Radius: " + str(round(radius, 2)) + ' cm', (i[0] - 70, i[1]),
                                     cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 0), 5)
                         cv2.putText(image_copy, "Area: " + str(round(area, 2)) + 'sqr.cm', (i[0] - 70, i[1] + 60),
@@ -240,13 +235,10 @@ def area_irregular(opencv_image, image_canny):
                 area_list.append(area_in_cm2)
                 perimeter_list.append(perimeter_in_cm)
                 cv2.circle(opencv_image, (int(x + w // 2), int(y + h // 2)), 5, (0, 0, 255), -1)
-<<<<<<< HEAD
                 # cv2.putText(opencv_image, "No.of Points detected:" + str(len(approx)),
                 #             ((x + w // 3), (y + h // 2)), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 0), 5)
-=======
                 cv2.putText(opencv_image, "No.of Points detected:" + str(len(approx)),
                             ((x + w // 3), (y + h // 2)), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 0), 5)
->>>>>>> 21c3336a0a9d5866f9362d11f0c6ec80cdc11b72
                 cv2.putText(opencv_image, "Area: {} sqr.cm".format(area_in_cm2, 1),
                             ((x + w // 3), (y + h // 2 + 60)), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 0), 5)
                 cv2.putText(opencv_image, "Perimeter: {}cm".format(perimeter_in_cm, 1),
